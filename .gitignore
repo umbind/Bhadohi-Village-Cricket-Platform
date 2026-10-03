@@ -43,6 +43,13 @@ apps/mobile/android/.gradle/
 apps/mobile/android/local.properties
 apps/mobile/*.lock
 
+# Android build output
+apps/android/.gradle/
+apps/android/build/
+apps/android/app/build/
+apps/android/local.properties
+*.apk
+
 # Database / SQLite local dev files
 *.sqlite
 *.sqlite3

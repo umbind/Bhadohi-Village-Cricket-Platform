@@ -20,6 +20,7 @@
     "test:all": "node scripts/verify-phase2-prototypes.js && node scripts/verify-phase3-schema.js && node scripts/verify-phase4-setup.js && node scripts/verify-phase5-auth.js && node scripts/verify-phase6-tournaments.js && node scripts/verify-phase7-invitations.js && node scripts/verify-phase8-dashboard.js && node scripts/verify-phase9-moderation.js && node scripts/verify-phase10-testing.js && node scripts/verify-phase11-pilot.js",
     "build:server": "npm run --workspace=@bvcp/server build",
     "build:web": "npm run --workspace=@bvcp/web build",
+    "build:android": "powershell -Command \"$env:JAVA_HOME='C:\\Program Files\\Android\\Android Studio\\jbr'; $env:PATH=\\\"$env:JAVA_HOME\\bin;$env:PATH\\\"; cd apps/android; .\\gradlew.bat assembleDebug\"",
     "dev:server": "node scripts/run-dev-server.js",
     "dev:web": "npm run --workspace=@bvcp/web dev",
     "lint": "echo \"Running linter checks across workspaces...\" && exit 0",
