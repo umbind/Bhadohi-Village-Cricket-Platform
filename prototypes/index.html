@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>भदोही ग्रामीण क्रिकेट प्लेटफ़ॉर्म - UI/UX Prototype</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #0d2117;
+      color: #172019;
+    }
+    :root {
+      --primary-green: #1E7A4C;
+      --deep-forest: #123B2A;
+      --cream-bg: #F6F8F3;
+      --amber-highlight: #F4B942;
+      --main-text: #172019;
+      --muted-text: #68756C;
+      --error-red: #C74D4D;
+      --border-color: #E1E8E1;
+    }
+    .min-touch {
+      min-height: 48px;
+      min-width: 48px;
+    }
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #E1E8E1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1E7A4C;
+      border-radius: 3px;
+    }
+    .pulse-skeleton {
+      background: linear-gradient(90deg, #e6ece5 25%, #f6f8f3 50%, #e6ece5 75%);
+      background-size: 200% 100%;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body class="p-2 sm:p-4 min-h-screen flex flex-col items-center">
+
+  <!-- Top Global Navigation Bar -->
+  <header class="w-full max-w-7xl bg-[#123B2A] text-white rounded-2xl p-4 mb-4 shadow-xl flex flex-wrap items-center justify-between gap-4 border border-[#1E7A4C]/40">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-xl bg-[#1E7A4C] flex items-center justify-center text-2xl shadow-inner font-bold text-[#F4B942]">
+        🏏
+      </div>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+          भदोही ग्रामीण क्रिकेट प्लेटफ़ॉर्म
+          <span class="text-xs bg-[#F4B942] text-[#123B2A] px-2 py-0.5 rounded-full font-extrabold uppercase">Phase 2 Prototype</span>
+        </h1>
+        <p class="text-xs text-emerald-200">जिला भदोही (संत रविदास नगर), उत्तर प्रदेश • 18+ केवल</p>
+      </div>
+    </div>
+
+    <!-- Mode Switcher & UI State Selector -->
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="bg-[#0b1f16] p-1.5 rounded-xl flex items-center border border-[#1E7A4C]/50">
+        <button id="btn-mode-mobile" onclick="switchViewMode('mobile')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#1E7A4C] text-white flex items-center gap-1.5 transition">
+          📱 मोबाइल ऐप (25 स्क्रीन)
+        </button>
+        <button id="btn-mode-desktop" onclick="switchViewMode('desktop')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-emerald-200 hover:text-white flex items-center gap-1.5 transition">
+          💻 आयोजक डेस्कटॉप डैशबोर्ड
+        </button>
+      </div>
+
+      <!-- State Simulation Dropdown -->
+      <div class="flex items-center gap-2 bg-[#0b1f16] px-3 py-1.5 rounded-xl border border-[#1E7A4C]/50 text-xs">
+        <span class="text-emerald-300 font-medium">स्थिति (State):</span>
+        <select id="state-selector" onchange="changeUIState(this.value)" class="bg-[#123B2A] text-white text-xs rounded-lg px-2.5 py-1 border border-[#1E7A4C] focus:outline-none focus:ring-1 focus:ring-[#F4B942]">
+          <option value="NORMAL">सामान्य (Normal Active)</option>
+          <option value="LOADING">लोडिंग (Loading Skeleton)</option>
+          <option value="EMPTY">रिक्त स्थिति (Empty State)</option>
+          <option value="ERROR">त्रुटि / नेटवर्क एरर (Error & Retry)</option>
+          <option value="EXPIRED">कालावधि समाप्त (Expired State)</option>
+          <option value="CANCELLED">प्रतियोगिता निरस्त (Cancelled)</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- 1. MOBILE PROTOTYPE CONTAINER -->
+  <!-- ========================================== -->
+  <main id="mobile-view-container" class="w-full max-w-7xl flex flex-col lg:flex-row gap-6 items-start justify-center">
+
+    <!-- Screen Navigation Sidebar (Left) -->
+    <aside class="w-full lg:w-80 bg-[#123B2A] text-white rounded-2xl p-4 shadow-xl border border-[#1E7A4C]/30 flex flex-col max-h-[820px]">
+      <div class="mb-3 pb-3 border-b border-[#1E7A4C]/40 flex justify-between items-center">
+        <div>
+          <h2 class="text-sm font-bold text-[#F4B942]">स्क्रीन चयन (25 Screens)</h2>
+          <p class="text-xs text-emerald-300">किसी भी स्क्रीन पर टैप करें:</p>
+        </div>
+        <span id="current-screen-badge" class="text-xs bg-[#1E7A4C] text-white px-2 py-0.5 rounded font-mono font-bold">SCR-01</span>
+      </div>
+
+      <div class="overflow-y-auto pr-1 space-y-1 text-xs" id="screens-list-container">
+        <!-- Generated dynamically via JS -->
+      </div>
+    </aside>
+
+    <!-- Mobile Device Frame (Center) -->
+    <section class="flex flex-col items-center">
+      <!-- Phone Mockup Frame -->
+      <div class="relative w-[380px] h-[780px] bg-black rounded-[48px] p-3 shadow-2xl border-4 border-slate-700 ring-4 ring-[#1E7A4C]/40 flex flex-col overflow-hidden">
+        
+        <!-- Phone Top Notch / Speaker -->
+        <div class="w-full flex justify-between items-center px-6 pt-2 pb-1 text-[11px] text-zinc-400 font-semibold z-30 select-none">
+          <span>09:41</span>
+          <div class="w-20 h-4 bg-zinc-900 rounded-full flex items-center justify-center">
+            <div class="w-3 h-3 bg-zinc-800 rounded-full mr-2"></div>
+            <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+          </div>
+          <div class="flex items-center gap-1 text-[10px]">
+            <span>4G</span>
+            <span>🔋 85%</span>
+          </div>
+        </div>
+
+        <!-- Phone Screen Inside Scaffold -->
+        <div class="relative w-full flex-1 bg-[#F6F8F3] rounded-[36px] overflow-hidden flex flex-col text-[#172019]">
+
+          <!-- App Top Header Bar -->
+          <div id="phone-app-header" class="bg-[#123B2A] text-white px-4 py-3 flex items-center justify-between border-b border-[#1E7A4C] shadow-sm select-none z-20">
+            <div class="flex items-center gap-2">
+              <span id="phone-back-btn" onclick="goToPreviousScreen()" class="cursor-pointer text-sm hidden p-1 hover:bg-[#1E7A4C] rounded-full">←</span>
+              <h2 id="phone-header-title" class="font-bold text-sm tracking-wide">भदोही क्रिकेट</h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="phone-header-badge" class="bg-[#F4B942] text-[#123B2A] text-[10px] px-2 py-0.5 rounded-full font-bold">ज्ञानपुर ब्लॉक</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Screen View Content Area -->
+          <div id="phone-screen-viewport" class="flex-1 overflow-y-auto p-4 relative">
+            <!-- Screen Content will render here -->
+          </div>
+
+          <!-- Phone Bottom Navigation Bar -->
+          <nav id="phone-bottom-nav" class="bg-white border-t border-[#E1E8E1] px-2 py-1.5 flex justify-around items-center select-none shadow-lg z-20">
+            <button onclick="navigateTo('SCR-06')" id="nav-btn-home" class="flex flex-col items-center justify-center py-1 px-2 rounded-lg text-[#1E7A4C] min-touch">
+              <span class="text-lg">🏠</span>
+              <span class="text-[10px] font-bold">होम</span>
+            </button>
+            <button onclick="navigateTo('SCR-08')" id="nav-btn-tournaments" class="flex flex-col items-center justify-center py-1 px-2 rounded-lg text-[#68756C] hover:text-[#1E7A4C] min-touch">
+              <span class="text-lg">🏆</span>
+              <span class="text-[10px] font-bold">प्रतियोगिताएं</span>
+            </button>
+            <button onclick="navigateTo('SCR-16')" id="nav-btn-requests" class="relative flex flex-col items-center justify-center py-1 px-2 rounded-lg text-[#68756C] hover:text-[#1E7A4C] min-touch">
+              <span class="text-lg">📩</span>
+              <span class="text-[10px] font-bold">अनुरोध</span>
+              <span class="absolute top-1 right-2 w-2 h-2 bg-[#F4B942] rounded-full"></span>
+            </button>
+            <button onclick="navigateTo('SCR-18')" id="nav-btn-profile" class="flex flex-col items-center justify-center py-1 px-2 rounded-lg text-[#68756C] hover:text-[#1E7A4C] min-touch">
+              <span class="text-lg">👤</span>
+              <span class="text-[10px] font-bold">प्रोफ़ाइल</span>
+            </button>
+          </nav>
+
+        </div>
+
+        <!-- Phone Home Indicator Bar -->
+        <div class="w-full flex justify-center py-1">
+          <div class="w-32 h-1 bg-zinc-600 rounded-full"></div>
+        </div>
+
+      </div>
+
+      <!-- Quick Screen Step Controls -->
+      <div class="flex items-center gap-3 mt-4 text-xs text-emerald-200">
+        <button onclick="stepScreen(-1)" class="px-3 py-1.5 bg-[#123B2A] border border-[#1E7A4C] rounded-lg hover:bg-[#1E7A4C] font-semibold text-white flex items-center gap-1 min-touch">
+          ◀ पिछली स्क्रीन
+        </button>
+        <span id="screen-counter-text" class="font-mono text-white font-bold">1 / 25</span>
+        <button onclick="stepScreen(1)" class="px-3 py-1.5 bg-[#123B2A] border border-[#1E7A4C] rounded-lg hover:bg-[#1E7A4C] font-semibold text-white flex items-center gap-1 min-touch">
+          अगली स्क्रीन ▶
+        </button>
+      </div>
+    </section>
+
+    <!-- Context & UX State Inspector (Right) -->
+    <aside class="w-full lg:w-80 bg-[#123B2A] text-white rounded-2xl p-4 shadow-xl border border-[#1E7A4C]/30 flex flex-col text-xs">
+      <div class="pb-3 border-b border-[#1E7A4C]/40 mb-3">
+        <h2 class="text-sm font-bold text-[#F4B942]">स्क्रीन विनिर्देश (UX Specs)</h2>
+        <p class="text-emerald-300">वर्तमान स्क्रीन के नियम एवं स्थिति:</p>
+      </div>
+
+      <div class="space-y-3">
+        <div class="bg-[#0e271c] p-2.5 rounded-xl border border-[#1E7A4C]/40">
+          <span class="text-zinc-400 block text-[10px]">स्क्रीन पहचानकर्ता:</span>
+          <span id="inspect-screen-id" class="font-mono font-bold text-[#F4B942] text-sm">SCR-01</span>
+          <span id="inspect-screen-name" class="font-bold text-white block mt-0.5">स्वागत एवं भाषा चयन</span>
+        </div>
+
+        <div class="bg-[#0e271c] p-2.5 rounded-xl border border-[#1E7A4C]/40">
+          <span class="text-zinc-400 block text-[10px]">मुख्य उद्देश्य:</span>
+          <p id="inspect-screen-purpose" class="text-emerald-100 mt-1 leading-relaxed">
+            ऐप का स्वागत पृष्ठ, डिफ़ॉल्ट हिंदी भाषा की पुष्टि और 18+ आयु का वैधानिक सत्यापन।
+          </p>
+        </div>
+
+        <div class="bg-[#0e271c] p-2.5 rounded-xl border border-[#1E7A4C]/40">
+          <span class="text-zinc-400 block text-[10px]">सक्रिय UI स्थिति (Active State):</span>
+          <span id="inspect-active-state" class="inline-block mt-1 font-bold px-2 py-0.5 rounded bg-[#1E7A4C] text-white uppercase text-[11px]">
+            NORMAL
+          </span>
+          <p id="inspect-state-explanation" class="text-zinc-300 mt-1.5 leading-relaxed text-[11px]">
+            स्क्रीन के सभी सामान्य घटक और क्रियाएं प्रदर्शित हैं।
+          </p>
+        </div>
+
+        <div class="bg-[#0e271c] p-2.5 rounded-xl border border-[#1E7A4C]/40">
+          <span class="text-zinc-400 block text-[10px]">एक्सेसिबिलिटी एवं टच नियम:</span>
+          <ul class="text-emerald-200 mt-1 space-y-1 list-disc list-inside text-[11px]">
+            <li>न्यूनतम टच लक्ष्य: 48x48 dp</li>
+            <li>केवल आइकन नहीं: आइकन + पाठ अनिवार्य</li>
+            <li>फॉन्ट: Noto Sans Devanagari</li>
+            <li>ऑफलाइन सूचना: कोई वित्तीय लेन-देन नहीं</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+
+
+  <!-- ========================================== -->
+  <!-- 2. DESKTOP ORGANIZER DASHBOARD PROTOTYPE -->
+  <!-- ========================================== -->
+  <main id="desktop-view-container" class="w-full max-w-7xl bg-[#F6F8F3] rounded-3xl shadow-2xl border border-[#1E7A4C]/40 overflow-hidden flex flex-col md:flex-row min-h-[820px] hidden text-[#172019]">
+
+    <!-- Desktop Sidebar (Deep Forest Green) -->
+    <aside class="w-full md:w-64 bg-[#123B2A] text-white p-5 flex flex-col justify-between border-r border-[#1E7A4C]/30 select-none">
+      <div>
+        <div class="flex items-center gap-3 pb-6 border-b border-[#1E7A4C]/40">
+          <div class="w-10 h-10 rounded-xl bg-[#1E7A4C] flex items-center justify-center text-xl text-[#F4B942] font-bold">
+            🏏
+          </div>
+          <div>
+            <h2 class="font-bold text-sm tracking-wide text-white">आयोजक पोर्टल</h2>
+            <p class="text-xs text-emerald-300">भदोही जिला क्रिकेट संघ</p>
+          </div>
+        </div>
+
+        <!-- Sidebar Navigation Menu -->
+        <nav class="mt-6 space-y-1.5 text-xs font-semibold">
+          <button onclick="switchDesktopTab('desk-tab-dashboard')" id="nav-desk-dashboard" class="w-full text-left px-3 py-3 rounded-xl bg-[#1E7A4C] text-white flex items-center gap-3 transition min-touch">
+            <span>📊</span> <span>डैशबोर्ड (Dashboard)</span>
+          </button>
+          <button onclick="switchDesktopTab('desk-tab-tournaments')" id="nav-desk-tournaments" class="w-full text-left px-3 py-3 rounded-xl text-emerald-100 hover:bg-[#1E7A4C]/50 flex items-center gap-3 transition min-touch">
+            <span>🏆</span> <span>मेरी प्रतियोगिताएं (Tournaments)</span>
+          </button>
+          <button onclick="switchDesktopTab('desk-tab-wizard')" id="nav-desk-wizard" class="w-full text-left px-3 py-3 rounded-xl text-emerald-100 hover:bg-[#1E7A4C]/50 flex items-center gap-3 transition min-touch">
+            <span>➕</span> <span>नया टूर्नामेंट बनाएं (Wizard)</span>
+          </button>
+          <button onclick="switchDesktopTab('desk-tab-applications')" id="nav-desk-applications" class="w-full text-left px-3 py-3 rounded-xl text-emerald-100 hover:bg-[#1E7A4C]/50 flex items-center justify-between transition min-touch">
+            <span class="flex items-center gap-3"><span>📋</span> <span>टीम आवेदन (Applications)</span></span>
+            <span class="bg-[#F4B942] text-[#123B2A] px-2 py-0.5 rounded-full font-bold text-[10px]">8 नए</span>
+          </button>
+          <button onclick="switchDesktopTab('desk-tab-announcements')" id="nav-desk-announcements" class="w-full text-left px-3 py-3 rounded-xl text-emerald-100 hover:bg-[#1E7A4C]/50 flex items-center gap-3 transition min-touch">
+            <span>📢</span> <span>घोषणाएं (Announcements)</span>
+          </button>
+          <button onclick="switchDesktopTab('desk-tab-reports')" id="nav-desk-reports" class="w-full text-left px-3 py-3 rounded-xl text-emerald-100 hover:bg-[#1E7A4C]/50 flex items-center gap-3 transition min-touch">
+            <span>⚠️</span> <span>शिकायतें / रिपोर्ट्स (Reports)</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Organizer Profile Footer -->
+      <div class="pt-4 border-t border-[#1E7A4C]/40 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-[#1E7A4C] text-[#F4B942] flex items-center justify-center font-bold">
+            रा
+          </div>
+          <div>
+            <p class="font-bold text-white">राजेश बिंद</p>
+            <p class="text-[10px] text-emerald-300">आयोजक • औराई ब्लॉक</p>
+          </div>
+        </div>
+        <button class="text-zinc-400 hover:text-white p-1" title="लॉग आउट">🚪</button>
+      </div>
+    </aside>
+
+    <!-- Desktop Workspace Content Area (Cream Scaffolding) -->
+    <div class="flex-1 p-6 overflow-y-auto flex flex-col">
+
+      <!-- View 1: Organizer Dashboard Overview -->
+      <section id="desk-tab-dashboard" class="space-y-6">
+        <div class="flex flex-wrap justify-between items-center gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-[#172019]">प्रतियोगिता संचालन डैशबोर्ड</h2>
+            <p class="text-xs text-[#68756C]">ग्राम औराई एवं ज्ञानपुर क्षेत्र में सक्रिय टूर्नामेंट्स का लाइव अवलोकन</p>
+          </div>
+          <button onclick="switchDesktopTab('desk-tab-wizard')" class="bg-[#1E7A4C] hover:bg-[#165a38] text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-md min-touch transition">
+            <span>➕</span> <span>नई प्रतियोगिता प्रकाशित करें</span>
+          </button>
+        </div>
+
+        <!-- Operational Metric Cards (No Rankings/Scores) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-4 rounded-2xl border border-[#E1E8E1] shadow-sm">
+            <span class="text-xs font-semibold text-[#68756C] block">सक्रिय प्रतियोगिताएं</span>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-2xl font-black text-[#1E7A4C]">02</span>
+              <span class="text-xs bg-[#1E7A4C]/10 text-[#1E7A4C] px-2 py-0.5 rounded-md font-bold">जारी है</span>
+            </div>
+            <span class="text-[11px] text-[#68756C] mt-2 block">औराई कप एवं ज्ञानपुर लीग</span>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-[#E1E8E1] shadow-sm">
+            <span class="text-xs font-semibold text-[#68756C] block">कुल प्राप्त आवेदन</span>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-2xl font-black text-[#172019]">24</span>
+              <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-md font-bold">टीमें</span>
+            </div>
+            <span class="text-[11px] text-[#68756C] mt-2 block">16 स्वीकृत • 8 समीक्षाधीन</span>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-[#E1E8E1] shadow-sm">
+            <span class="text-xs font-semibold text-[#68756C] block">लंबित समीक्षाएं</span>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-2xl font-black text-[#F4B942]">08</span>
+              <span class="text-xs bg-[#F4B942]/20 text-amber-900 px-2 py-0.5 rounded-md font-bold">कार्रवाई जरूरी</span>
+            </div>
+            <span class="text-[11px] text-amber-800 mt-2 block">अंतिम तिथि: 05 नवंबर</span>
+          </div>
+
+          <div class="bg-white p-4 rounded-2xl border border-[#E1E8E1] shadow-sm">
+            <span class="text-xs font-semibold text-[#68756C] block">अनसुलझी शिकायतें</span>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-2xl font-black text-[#C74D4D]">01</span>
+              <span class="text-xs bg-[#C74D4D]/10 text-[#C74D4D] px-2 py-0.5 rounded-md font-bold">रिपोर्ट</span>
+            </div>
+            <span class="text-[11px] text-[#C74D4D] mt-2 block">आयु सीमा संबंधित जांच</span>
+          </div>
+        </div>
+
+        <!-- Recent Application Queue Quick Preview -->
+        <div class="bg-white rounded-2xl border border-[#E1E8E1] p-5 shadow-sm">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-sm text-[#172019]">हाल ही में प्राप्त टीम आवेदन</h3>
+            <button onclick="switchDesktopTab('desk-tab-applications')" class="text-xs font-bold text-[#1E7A4C] hover:underline">
+              सभी आवेदन देखें (View All) →
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-[#F6F8F3] text-[#68756C] font-semibold border-b border-[#E1E8E1]">
+                <tr>
+                  <th class="py-2.5 px-3">टीम का नाम</th>
+                  <th class="py-2.5 px-3">गांव / ब्लॉक</th>
+                  <th class="py-2.5 px-3">कैप्टन</th>
+                  <th class="py-2.5 px-3">खिलाड़ी संख्या</th>
+                  <th class="py-2.5 px-3">आवेदन दिनांक</th>
+                  <th class="py-2.5 px-3">स्थिति (Status)</th>
+                  <th class="py-2.5 px-3 text-right">कार्रवाई</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#E1E8E1]">
+                <tr class="hover:bg-zinc-50">
+                  <td class="py-3 px-3 font-bold text-[#172019]">ज्ञानपुर वॉरियर्स</td>
+                  <td class="py-3 px-3">ज्ञानपुर खास</td>
+                  <td class="py-3 px-3">रामसेवक यादव</td>
+                  <td class="py-3 px-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">14 सदस्य</span></td>
+                  <td class="py-3 px-3 text-[#68756C]">02 अक्टू 2026</td>
+                  <td class="py-3 px-3"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold">लंबित (Pending)</span></td>
+                  <td class="py-3 px-3 text-right space-x-2">
+                    <button onclick="openRosterDrawer('ज्ञानपुर वॉरियर्स')" class="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-[#172019] rounded font-semibold min-touch">रोस्टर देखें</button>
+                    <button class="px-2 py-1 bg-[#1E7A4C] hover:bg-[#165a38] text-white rounded font-semibold min-touch">स्वीकार करें</button>
+                  </td>
+                </tr>
+                <tr class="hover:bg-zinc-50">
+                  <td class="py-3 px-3 font-bold text-[#172019]">औराई पैंथर्स</td>
+                  <td class="py-3 px-3">घोसीपुर, औराई</td>
+                  <td class="py-3 px-3">विकास शुक्ला</td>
+                  <td class="py-3 px-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">12 सदस्य</span></td>
+                  <td class="py-3 px-3 text-[#68756C]">01 अक्टू 2026</td>
+                  <td class="py-3 px-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">स्वीकृत (Accepted)</span></td>
+                  <td class="py-3 px-3 text-right space-x-2">
+                    <button onclick="openRosterDrawer('औराई पैंथर्स')" class="px-2 py-1 bg-zinc-100 hover:bg-zinc-200 text-[#172019] rounded font-semibold min-touch">रोस्टर देखें</button>
+                    <button class="px-2 py-1 bg-zinc-200 text-zinc-500 rounded font-semibold cursor-not-allowed">स्वीकृत</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- View 2: Applications Table View -->
+      <section id="desk-tab-applications" class="space-y-6 hidden">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-2xl font-bold text-[#172019]">टीम आवेदन प्रबंधन (Team Applications)</h2>
+            <p class="text-xs text-[#68756C]">प्रतियोगिता: औराई प्रीमियर कप 2026</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-[#68756C]">फ़िल्टर:</span>
+            <select class="bg-white border border-[#E1E8E1] rounded-xl px-3 py-1.5 text-xs font-semibold">
+              <option>सभी आवेदन (24)</option>
+              <option selected>केवल लंबित (8)</option>
+              <option>स्वीकृत (14)</option>
+              <option>अस्वीकृत (2)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-[#E1E8E1] p-5 shadow-sm">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-[#F6F8F3] text-[#68756C] font-semibold border-b border-[#E1E8E1]">
+              <tr>
+                <th class="py-3 px-4">टीम का नाम</th>
+                <th class="py-3 px-4">गांव / कस्बा</th>
+                <th class="py-3 px-4">कैप्टन का नाम</th>
+                <th class="py-3 px-4">खिलाड़ी स्थिति</th>
+                <th class="py-3 px-4">आवेदन दिनांक</th>
+                <th class="py-3 px-4">वर्तमान स्थिति</th>
+                <th class="py-3 px-4 text-right">कार्रवाई (Actions)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E1E8E1]">
+              <tr class="hover:bg-zinc-50">
+                <td class="py-3 px-4 font-bold text-[#172019]">गोपीगंज स्ट्राइकर्स</td>
+                <td class="py-3 px-4">गोपीगंज वार्ड 4</td>
+                <td class="py-3 px-4">सुरेंद्र पाल</td>
+                <td class="py-3 px-4"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">13/15 खिलाड़ी</span></td>
+                <td class="py-3 px-4 text-[#68756C]">02 अक्टू 2026</td>
+                <td class="py-3 px-4"><span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-bold">लंबित (Pending)</span></td>
+                <td class="py-3 px-4 text-right space-x-2">
+                  <button onclick="openRosterDrawer('गोपीगंज स्ट्राइकर्स')" class="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-[#172019] rounded-lg font-semibold min-touch">रोस्टर देखें</button>
+                  <button onclick="acceptTeamAction('गोपीगंज स्ट्राइकर्स')" class="px-3 py-1.5 bg-[#1E7A4C] hover:bg-[#165a38] text-white rounded-lg font-semibold min-touch">स्वीकार करें</button>
+                  <button onclick="rejectTeamAction('गोपीगंज स्ट्राइकर्स')" class="px-3 py-1.5 bg-[#C74D4D] hover:bg-red-800 text-white rounded-lg font-semibold min-touch">अस्वीकार करें</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-zinc-50">
+                <td class="py-3 px-4 font-bold text-[#172019]">सुरियावां लायंस</td>
+                <td class="py-3 px-4">सुरियावां देहात</td>
+                <td class="py-3 px-4">अखिलेश सिंह</td>
+                <td class="py-3 px-4"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">15/15 पूर्ण</span></td>
+                <td class="py-3 px-4 text-[#68756C]">02 अक्टू 2026</td>
+                <td class="py-3 px-4"><span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-bold">लंबित (Pending)</span></td>
+                <td class="py-3 px-4 text-right space-x-2">
+                  <button onclick="openRosterDrawer('सुरियावां लायंस')" class="px-2.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-[#172019] rounded-lg font-semibold min-touch">रोस्टर देखें</button>
+                  <button onclick="acceptTeamAction('सुरियावां लायंस')" class="px-3 py-1.5 bg-[#1E7A4C] hover:bg-[#165a38] text-white rounded-lg font-semibold min-touch">स्वीकार करें</button>
+                  <button onclick="rejectTeamAction('सुरियावां लायंस')" class="px-3 py-1.5 bg-[#C74D4D] hover:bg-red-800 text-white rounded-lg font-semibold min-touch">अस्वीकार करें</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- View 3: 4-Step Tournament Creation Wizard -->
+      <section id="desk-tab-wizard" class="space-y-6 hidden">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-2xl font-bold text-[#172019]">नई प्रतियोगिता प्रकाशित करें (Creation Wizard)</h2>
+            <p class="text-xs text-[#68756C]">4 आसान चरणों में ग्रामीण टूर्नामेंट जोड़ें</p>
+          </div>
+          <span class="text-xs bg-[#1E7A4C] text-white px-3 py-1 rounded-full font-bold" id="wizard-step-indicator">चरण 1 / 4: बुनियादी विवरण</span>
+        </div>
+
+        <!-- Wizard Steps Navigation Tabs -->
+        <div class="grid grid-cols-4 gap-2 text-xs font-bold text-center">
+          <div id="step-pill-1" class="py-2.5 bg-[#1E7A4C] text-white rounded-xl shadow-sm">1. बुनियादी विवरण</div>
+          <div id="step-pill-2" class="py-2.5 bg-white border border-[#E1E8E1] text-[#68756C] rounded-xl">2. पंजीकरण विवरण</div>
+          <div id="step-pill-3" class="py-2.5 bg-white border border-[#E1E8E1] text-[#68756C] rounded-xl">3. नियम एवं अस्वीकरण</div>
+          <div id="step-pill-4" class="py-2.5 bg-white border border-[#E1E8E1] text-[#68756C] rounded-xl">4. समीक्षा एवं प्रकाशन</div>
+        </div>
+
+        <!-- Wizard Step Containers -->
+        <div class="bg-white rounded-2xl border border-[#E1E8E1] p-6 shadow-sm">
+          
+          <!-- Wizard Step 1: Basic Info -->
+          <div id="wizard-step-1" class="space-y-4">
+            <h3 class="font-bold text-base text-[#123B2A] border-b border-[#E1E8E1] pb-2">प्रतियोगिता का बुनियादी विवरण</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-[#172019]">प्रतियोगिता का नाम (Tournament Name) *</label>
+                <input type="text" value="ज्ञानपुर ग्रामीण क्रिकेट कप 2026" class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium focus:ring-1 focus:ring-[#1E7A4C] outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-[#172019]">मैदान का नाम व स्थान (Ground Location) *</label>
+                <input type="text" value="इंटर कॉलेज मैदान, ज्ञानपुर" class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium focus:ring-1 focus:ring-[#1E7A4C] outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-[#172019]">विकास खंड (Block in Bhadohi) *</label>
+                <select class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium outline-none">
+                  <option selected>ज्ञानपुर (Gyanpur)</option>
+                  <option>औराई (Aurai)</option>
+                  <option>भदोही (Bhadohi)</option>
+                  <option>सुरियावां (Suriyawan)</option>
+                  <option>डीघ (Deegh)</option>
+                  <option>अभोली (Abholi)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-[#172019]">गांव / कस्बा *</label>
+                <input type="text" value="ज्ञानपुर मुख्यालय" class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-[#172019]">मैच प्रारंभ तिथि *</label>
+                <input type="date" value="2026-11-10" class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-[#172019]">मैच समापन तिथि *</label>
+                <input type="date" value="2026-11-15" class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium outline-none">
+              </div>
+            </div>
+            <div class="flex justify-end pt-4">
+              <button onclick="setWizardStep(2)" class="px-5 py-2.5 bg-[#1E7A4C] text-white rounded-xl font-bold text-xs shadow-md min-touch">
+                अगला चरण: पंजीकरण विवरण →
+              </button>
+            </div>
+          </div>
+
+          <!-- Wizard Step 2: Registration Details -->
+          <div id="wizard-step-2" class="space-y-4 hidden">
+            <h3 class="font-bold text-base text-[#123B2A] border-b border-[#E1E8E1] pb-2">पंजीकरण एवं मैच प्रारूप</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-[#172019]">पंजीकरण प्रारंभ तिथि *</label>
+                <input type="date" value="2026-10-05" class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-[#172019]">पंजीकरण अंतिम तिथि (Deadline) *</label>
+                <input type="date" value="2026-11-05" class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-[#172019]">अधिकतम टीमें (Max Teams) *</label>
+                <input type="number" value="16" class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-[#172019]">मैच प्रारूप (Overs) *</label>
+                <input type="text" value="10 Overs" class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-[#172019]">गेंद का प्रकार (Ball Type) *</label>
+                <select class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium outline-none">
+                  <option selected>टेनिस गेंद (Tennis Ball)</option>
+                  <option>कॉस्को (Cosco)</option>
+                  <option>लेदर गेंद (Leather Ball)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-[#172019]">प्रवेश शुल्क सूचना (Informational Only) *</label>
+                <input type="text" value="₹500 प्रति टीम (मैदान पर नकद)" class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium outline-none">
+              </div>
+            </div>
+            
+            <div class="bg-amber-50 border border-[#F4B942] rounded-xl p-3 text-xs text-amber-900 flex items-center gap-2">
+              <span class="text-base">⚠️</span>
+              <span><strong>महत्वपूर्ण सूचना:</strong> इस ऐप में कोई ऑनलाइन भुगतान या वॉलेट सुविधा नहीं है। शुल्क विवरण केवल कप्तानों की सूचना हेतु है।</span>
+            </div>
+
+            <div class="flex justify-between pt-4">
+              <button onclick="setWizardStep(1)" class="px-5 py-2.5 bg-zinc-200 text-[#172019] rounded-xl font-bold text-xs min-touch">← पिछला चरण</button>
+              <button onclick="setWizardStep(3)" class="px-5 py-2.5 bg-[#1E7A4C] text-white rounded-xl font-bold text-xs min-touch">अगला चरण: नियम एवं अस्वीकरण →</button>
+            </div>
+          </div>
+
+          <!-- Wizard Step 3: Rules & Disclaimer -->
+          <div id="wizard-step-3" class="space-y-4 hidden">
+            <h3 class="font-bold text-base text-[#123B2A] border-b border-[#E1E8E1] pb-2">नियम एवं ऑफलाइन जिम्मेदारी अस्वीकरण</h3>
+            <div>
+              <label class="block text-xs font-semibold mb-1 text-[#172019]">प्रतियोगिता नियम (Rules)</label>
+              <textarea rows="3" class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium outline-none">1. सभी खिलाड़ियों का 18 वर्ष या उससे अधिक होना अनिवार्य है।
+2. आधार कार्ड की मूल प्रति मैदान पर प्रस्तुत करनी होगी।
+3. अंपायर का निर्णय अंतिम एवं सर्वमान्य होगा।</textarea>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1 text-[#172019]">ऑफलाइन जिम्मेदारी अस्वीकरण (Mandatory Legal Disclaimer)</label>
+              <textarea rows="3" readonly class="w-full bg-zinc-100 border border-[#E1E8E1] rounded-xl p-2.5 text-xs text-zinc-600 outline-none">यह प्लेटफ़ॉर्म केवल टीमों के आवेदन और समन्वय की सुविधा प्रदान करता है। मैच का संचालन, अंपायरिंग, यात्रा, भोजन, सुरक्षा एवं पुरस्कार वितरण का पूरा दायित्व स्थानीय आयोजकों और कप्तानों का है।</textarea>
+            </div>
+
+            <div class="flex justify-between pt-4">
+              <button onclick="setWizardStep(2)" class="px-5 py-2.5 bg-zinc-200 text-[#172019] rounded-xl font-bold text-xs min-touch">← पिछला चरण</button>
+              <button onclick="setWizardStep(4)" class="px-5 py-2.5 bg-[#1E7A4C] text-white rounded-xl font-bold text-xs min-touch">अगला चरण: समीक्षा एवं प्रकाशन →</button>
+            </div>
+          </div>
+
+          <!-- Wizard Step 4: Review and Publish -->
+          <div id="wizard-step-4" class="space-y-4 hidden">
+            <h3 class="font-bold text-base text-[#123B2A] border-b border-[#E1E8E1] pb-2">समीक्षा एवं लाइव मोबाइल पूर्वावलोकन (Preview)</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+              <div>
+                <h4 class="font-bold text-xs text-[#172019] mb-2">मोबाइल कार्ड पूर्वावलोकन:</h4>
+                <div class="bg-[#F6F8F3] border-2 border-[#1E7A4C] rounded-2xl p-4 shadow-sm space-y-2">
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-[#1E7A4C]">ज्ञानपुर ग्रामीण क्रिकेट कप 2026</span>
+                    <span class="text-[10px] bg-[#1E7A4C] text-white px-2 py-0.5 rounded-full font-bold">खुला है (OPEN)</span>
+                  </div>
+                  <p class="text-[11px] text-[#68756C]">📍 इंटर कॉलेज मैदान, ज्ञानपुर (ज्ञानपुर ब्लॉक)</p>
+                  <p class="text-[11px] text-[#172019]">📅 मैच दिनांक: 10 नवं - 15 नवं 2026</p>
+                  <div class="flex justify-between items-center text-[10px] bg-white p-2 rounded-xl border border-[#E1E8E1]">
+                    <span>🏏 10 Overs (टेनिस गेंद)</span>
+                    <span class="font-bold text-[#1E7A4C]">₹500 शुल्क (नकद)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-3 bg-[#F6F8F3] p-4 rounded-2xl border border-[#E1E8E1]">
+                <h4 class="font-bold text-xs text-[#172019]">प्रकाशन स्थिति विकल्प:</h4>
+                <p class="text-[11px] text-[#68756C]">प्रकाशन के तुरंत बाद यह सभी खिलाड़ियों और कप्तानों को ऐप में दिखाई देगा।</p>
+                <div class="flex flex-col gap-2 pt-2">
+                  <button onclick="publishTournamentSuccess()" class="w-full py-3 bg-[#1E7A4C] hover:bg-[#165a38] text-white font-bold rounded-xl text-xs shadow-md min-touch">
+                    🚀 अभी प्रकाशित करें (Publish Tournament)
+                  </button>
+                  <button onclick="saveDraftSuccess()" class="w-full py-2.5 bg-white border border-[#E1E8E1] hover:bg-zinc-50 text-[#172019] font-bold rounded-xl text-xs min-touch">
+                    💾 ड्राफ्ट सहेजें (Save as Draft)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-start pt-4">
+              <button onclick="setWizardStep(3)" class="px-5 py-2.5 bg-zinc-200 text-[#172019] rounded-xl font-bold text-xs min-touch">← पिछला चरण</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- View 4: Announcements & Reports -->
+      <section id="desk-tab-announcements" class="space-y-6 hidden">
+        <h2 class="text-2xl font-bold text-[#172019]">आधिकारिक घोषणाएं (Announcements)</h2>
+        <div class="bg-white rounded-2xl border border-[#E1E8E1] p-5 shadow-sm space-y-4">
+          <div>
+            <label class="block text-xs font-semibold mb-1 text-[#172019]">स्वीकृत टीमों के कप्तानों को संदेश भेजें:</label>
+            <textarea rows="3" placeholder="उदा: कल का पहला मैच सुबह 8:30 बजे से ज्ञानपुर इंटर कॉलेज मैदान पर प्रारंभ होगा..." class="w-full bg-[#F6F8F3] border border-[#E1E8E1] rounded-xl p-2.5 text-xs font-medium outline-none"></textarea>
+          </div>
+          <button class="px-4 py-2.5 bg-[#1E7A4C] text-white rounded-xl text-xs font-bold shadow-md min-touch">
+            📢 संदेश प्रसारित करें (Broadcast)
+          </button>
+        </div>
+      </section>
+
+      <section id="desk-tab-reports" class="space-y-6 hidden">
+        <h2 class="text-2xl font-bold text-[#172019]">शिकायत निवारण (Reports Queue)</h2>
+        <div class="bg-white rounded-2xl border border-[#E1E8E1] p-5 shadow-sm">
+          <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 mb-3 flex items-center justify-between">
+            <div>
+              <span class="font-bold block">रिपोर्ट #R-102 • संदिग्ध आयु सीमा</span>
+              <span>टीम: औराई वॉरियर्स • खिलाड़ी: राहुल कुमार • विवरण: आधार कार्ड सत्यापन की आवश्यकता</span>
+            </div>
+            <div class="space-x-2">
+              <button class="px-2.5 py-1 bg-[#1E7A4C] text-white rounded font-bold">सत्यापित</button>
+              <button class="px-2.5 py-1 bg-[#C74D4D] text-white rounded font-bold">अमान्य</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Slide-Over Drawer for Team Roster Inspection -->
+    <div id="roster-drawer" class="fixed inset-y-0 right-0 w-96 bg-white shadow-2xl border-l border-[#E1E8E1] transform translate-x-full transition-transform duration-300 z-50 p-6 flex flex-col justify-between hidden">
+      <div>
+        <div class="flex justify-between items-center pb-4 border-b border-[#E1E8E1]">
+          <div>
+            <h3 id="drawer-team-title" class="font-bold text-base text-[#123B2A]">ज्ञानपुर वॉरियर्स</h3>
+            <p class="text-xs text-[#68756C]">टीम रोस्टर एवं खिलाड़ी विवरण</p>
+          </div>
+          <button onclick="closeRosterDrawer()" class="text-zinc-400 hover:text-zinc-700 text-lg font-bold p-1">✕</button>
+        </div>
+
+        <div class="mt-4 space-y-2 text-xs">
+          <div class="p-2.5 bg-[#F6F8F3] rounded-xl flex justify-between items-center border border-[#E1E8E1]">
+            <div>
+              <span class="font-bold text-[#172019] block">1. रामसेवक यादव (कैप्टन)</span>
+              <span class="text-[#68756C] text-[10px]">ऑलराउंडर • ज्ञानपुर</span>
+            </div>
+            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">18+ सत्यापित</span>
+          </div>
+
+          <div class="p-2.5 bg-[#F6F8F3] rounded-xl flex justify-between items-center border border-[#E1E8E1]">
+            <div>
+              <span class="font-bold text-[#172019] block">2. अमित कुमार</span>
+              <span class="text-[#68756C] text-[10px]">बल्लेबाज • गोपीगंज</span>
+            </div>
+            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">18+ सत्यापित</span>
+          </div>
+
+          <div class="p-2.5 bg-[#F6F8F3] rounded-xl flex justify-between items-center border border-[#E1E8E1]">
+            <div>
+              <span class="font-bold text-[#172019] block">3. विकास बिंद</span>
+              <span class="text-[#68756C] text-[10px]">तेज गेंदबाज • औराई</span>
+            </div>
+            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">18+ सत्यापित</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-[#E1E8E1] space-y-2">
+        <button onclick="closeRosterDrawer()" class="w-full py-2.5 bg-[#1E7A4C] text-white rounded-xl font-bold text-xs min-touch">बंद करें</button>
+      </div>
+    </div>
+
+  </main>
+
+
+  <!-- ======================================================== -->
+  <!-- JAVASCRIPT LOGIC FOR SCREEN REGISTRY, STATES & TOGGLES -->
+  <!-- ======================================================== -->
+  <script>
+    // 25 Screens Catalog with Metadata & Hindi Copy
+    const SCREENS = [
+      { id: 'SCR-01', name: 'स्वागत एवं भाषा चयन', en: 'Welcome & Language', role: 'All', purpose: 'ऐप का स्वागत पृष्ठ, डिफ़ॉल्ट हिंदी भाषा चयन एवं 18+ आयु का वैधानिक सत्यापन।' },
+      { id: 'SCR-02', name: 'नया खाता पंजीकरण', en: 'Registration', role: 'All', purpose: '10-अंकीय मोबाइल नंबर एवं 6-अंकीय पिन के साथ खाता निर्माण।' },
+      { id: 'SCR-03', name: 'लॉग इन (Login)', en: 'Login', role: 'All', purpose: 'मोबाइल नंबर व पिन द्वारा प्रमाणीकरण। लगातार 5 गलत प्रयासों पर 15 मिनट का लॉक।' },
+      { id: 'SCR-04', name: 'रिकवरी कोड सुरक्षा', en: 'Recovery Code Setup', role: 'All', purpose: '8-अक्षरीय गुप्त रिकवरी कोड केवल एक बार प्रदर्शित किया जाता है।' },
+      { id: 'SCR-05', name: 'भूमिका चयन (Role)', en: 'Role Selection', role: 'All', purpose: 'खिलाड़ी या कैप्टन/टीम संचालक के रूप में शुरुआती इंटरफ़ेस का चयन।' },
+      { id: 'SCR-06', name: 'खिलाड़ी होम (Player Home)', en: 'Player Home', role: 'Player', purpose: 'खिलाड़ी का मुख्य पृष्ठ: उपलब्धता स्थिति, निकटवर्ती टूर्नामेंट्स एवं आमंत्रण।' },
+      { id: 'SCR-07', name: 'कैप्टन होम (Captain Home)', en: 'Captain Home', role: 'Captain', purpose: 'कैप्टन का संचालन पृष्ठ: सक्रिय टीमें, स्क्वॉड क्षमता एवं टूर्नामेंट आवेदन।' },
+      { id: 'SCR-08', name: 'प्रतियोगिता सूची', en: 'Tournament Listing', role: 'All', purpose: 'भदोही जिले के सभी ब्लॉकों में खुली क्रिकेट प्रतियोगिताओं की सूची।' },
+      { id: 'SCR-09', name: 'टूर्नामेंट फ़िल्टर', en: 'Tournament Filters', role: 'All', purpose: 'ब्लॉक, प्रारंभ तिथि, गेंद का प्रकार और स्थिति के अनुसार खोज को संकीर्ण करना।' },
+      { id: 'SCR-10', name: 'प्रतियोगिता विवरण', en: 'Tournament Details', role: 'All', purpose: 'मैदान, तारीख, गेंद, नियम, व्हाट्सएप शेयर एवं टीम आवेदन का संपूर्ण विवरण।' },
+      { id: 'SCR-11', name: 'टूर्नामेंट आवेदन फॉर्म', en: 'Tournament Application', role: 'Captain', purpose: 'कम से कम 11 स्वीकृत खिलाड़ियों के साथ टूर्नामेंट में टीम का आवेदन जमा करना।' },
+      { id: 'SCR-12', name: 'नई टीम बनाएं', en: 'Team Creation', role: 'Captain', purpose: 'किसी विशिष्ट टूर्नामेंट हेतु अस्थायी टीम नाम एवं गांव का पंजीकरण।' },
+      { id: 'SCR-13', name: 'टीम विवरण एवं रोस्टर', en: 'Team Details', role: 'Captain', purpose: 'टीम के स्वीकृत एवं लंबित सदस्यों का प्रबंधन व खिलाड़ी आमंत्रण स्थिति।' },
+      { id: 'SCR-14', name: 'खिलाड़ी खोजें (Search)', en: 'Player Search', role: 'Captain', purpose: 'ब्लॉक, खेलने की भूमिका (बल्लेबाज/गेंदबाज) व उपलब्धता के अनुसार स्काउटिंग।' },
+      { id: 'SCR-15', name: 'आमंत्रण भेजें (Invite)', en: 'Player Invitation', role: 'Captain', purpose: 'उपलब्ध खिलाड़ी को अपनी टीम के रोस्टर में शामिल होने का आमंत्रण भेजना।' },
+      { id: 'SCR-16', name: 'प्राप्त आमंत्रण (Requests)', en: 'Received Invitations', role: 'Player', purpose: 'खिलाड़ी द्वारा कैप्टन के आमंत्रण को स्वीकार या अस्वीकार करना।' },
+      { id: 'SCR-17', name: 'भेजे गए आमंत्रण', en: 'Sent Invitations', role: 'Captain', purpose: 'कैप्टन द्वारा भेजे गए आमंत्रणों की वास्तविक स्थिति (Pending/Accepted)।' },
+      { id: 'SCR-18', name: 'खिलाड़ी प्रोफ़ाइल', en: 'Player Profile', role: 'Player', purpose: 'व्यक्तिगत खेल विवरण, ब्लॉक, बल्लेबाजी/गेंदबाजी शैली व गोपनीयता सेटिंग्स।' },
+      { id: 'SCR-19', name: 'उपलब्धता प्रबंधन', en: 'Availability Settings', role: 'Player', purpose: '15 या 30 दिनों हेतु खेल उपलब्धता चालू करना (स्वतः समाप्त होने वाली)।' },
+      { id: 'SCR-20', name: 'सूचनाएं (Notifications)', en: 'Notifications', role: 'All', purpose: 'आवेदन स्थिति, आमंत्रण स्वीकृति एवं मैच घोषणाओं की समयबद्ध सूची।' },
+      { id: 'SCR-21', name: 'रिपोर्ट करें (Report)', en: 'Report User/Content', role: 'All', purpose: 'फ़र्ज़ी जानकारी या दुर्व्यवहार की शिकायत दर्ज करना (दैनिक कोटा: 5)।' },
+      { id: 'SCR-22', name: 'ब्लॉक करें (Block User)', en: 'Block User', role: 'All', purpose: 'अवांछित संपर्क या आमंत्रण से बचने हेतु किसी यूजर को ब्लॉक करना।' },
+      { id: 'SCR-23', name: 'सेटिंग्स (Settings)', en: 'Settings', role: 'All', purpose: 'पिन परिवर्तन, भाषा विकल्प, ब्लॉक सूची व प्लेटफ़ॉर्म नियम।' },
+      { id: 'SCR-24', name: 'खाता हटाएं (Delete)', en: 'Account Deletion', role: 'All', purpose: 'पिन पुष्टि द्वारा खाते को स्थायी रूप से हटाना एवं डेटा नष्ट करना।' },
+      { id: 'SCR-25', name: 'सहायता एवं संपर्क', en: 'Help & Support', role: 'All', purpose: 'ग्रामीण क्रिकेट समन्वय नियम, FAQ एवं एडमिन ऑफलाइन संपर्क।' }
+    ];
+
+    let currentScreenIndex = 0;
+    let currentUIState = 'NORMAL';
+
+    // Initialize Prototype
+    window.addEventListener('DOMContentLoaded', () => {
+      renderScreensSidebar();
+      renderScreen(0);
+    });
+
+    function renderScreensSidebar() {
+      const container = document.getElementById('screens-list-container');
+      container.innerHTML = '';
+      SCREENS.forEach((screen, index) => {
+        const item = document.createElement('button');
+        item.className = `w-full text-left p-2 rounded-xl flex items-center justify-between transition min-touch ${
+          index === currentScreenIndex ? 'bg-[#1E7A4C] text-white font-bold' : 'text-emerald-100 hover:bg-[#1E7A4C]/30'
+        }`;
+        item.onclick = () => renderScreen(index);
+        item.innerHTML = `
+          <div class="truncate">
+            <span class="font-mono text-[#F4B942] mr-1.5 text-[10px]">${screen.id}</span>
+            <span>${screen.name}</span>
+          </div>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-[#123B2A] text-emerald-200 border border-[#1E7A4C]/50">${screen.role}</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function renderScreen(index) {
+      currentScreenIndex = index;
+      const screen = SCREENS[index];
+
+      // Update Inspector & Badges
+      document.getElementById('current-screen-badge').innerText = screen.id;
+      document.getElementById('inspect-screen-id').innerText = screen.id;
+      document.getElementById('inspect-screen-name').innerText = screen.name;
+      document.getElementById('inspect-screen-purpose').innerText = screen.purpose;
+      document.getElementById('screen-counter-text').innerText = `${index + 1} / 25`;
+      document.getElementById('phone-header-title').innerText = screen.name.split(' (')[0];
+
+      // Show/Hide Phone Back Button
+      document.getElementById('phone-back-btn').style.display = index === 0 ? 'none' : 'inline-block';
+
+      // Update Active Navigation Highlight
+      updateBottomNavHighlight(screen.id);
+
+      // Render Screen Template
+      const viewport = document.getElementById('phone-screen-viewport');
+      viewport.innerHTML = getScreenHTML(screen.id, currentUIState);
+
+      renderScreensSidebar();
+    }
+
+    function stepScreen(delta) {
+      let newIndex = currentScreenIndex + delta;
+      if (newIndex >= 0 && newIndex < SCREENS.length) {
+        renderScreen(newIndex);
+      }
+    }
+
+    function navigateTo(screenId) {
+      const idx = SCREENS.findIndex(s => s.id === screenId);
+      if (idx !== -1) renderScreen(idx);
+    }
+
+    function goToPreviousScreen() {
+      if (currentScreenIndex > 0) renderScreen(currentScreenIndex - 1);
+    }
+
+    function changeUIState(state) {
+      currentUIState = state;
+      document.getElementById('inspect-active-state').innerText = state;
+      
+      const explMap = {
+        'NORMAL': 'सामान्य सक्रिय स्थिति: सभी कार्ड्स, बटन और विवरण सामान्य रूप से उपलब्ध हैं।',
+        'LOADING': 'लोडिंग स्थिति: धीमे 3G नेटवर्क पर शिमर स्केलेटन प्रदर्शित होता है, कोई खाली सफेद स्क्रीन नहीं।',
+        'EMPTY': 'रिक्त स्थिति: जब कोई डेटा या आमंत्रण मौजूद न हो, तब स्पष्ट मार्गदर्शन और एक्शन बटन।',
+        'ERROR': 'नेटवर्क त्रुटि: कनेक्शन कटने पर स्पष्ट त्रुटि संदेश और "पुनः प्रयास करें" (Retry) बटन।',
+        'EXPIRED': 'कालावधि समाप्त: 15-दिन की उपलब्धता या आमंत्रण की अवधि समाप्त होने पर चेतावनी।',
+        'CANCELLED': 'निरस्त स्थिति: आयोजक द्वारा प्रतियोगिता निरस्त करने पर कारण सहित स्पष्ट अलर्ट।'
+      };
+      document.getElementById('inspect-state-explanation').innerText = explMap[state] || '';
+      renderScreen(currentScreenIndex);
+    }
+
+    function updateBottomNavHighlight(screenId) {
+      const navButtons = ['nav-btn-home', 'nav-btn-tournaments', 'nav-btn-requests', 'nav-btn-profile'];
+      navButtons.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+          btn.className = "flex flex-col items-center justify-center py-1 px-2 rounded-lg text-[#68756C] min-touch";
+        }
+      });
+
+      if (['SCR-06', 'SCR-07'].includes(screenId)) {
+        document.getElementById('nav-btn-home').className = "flex flex-col items-center justify-center py-1 px-2 rounded-lg text-[#1E7A4C] font-bold min-touch";
+      } else if (['SCR-08', 'SCR-09', 'SCR-10', 'SCR-11'].includes(screenId)) {
+        document.getElementById('nav-btn-tournaments').className = "flex flex-col items-center justify-center py-1 px-2 rounded-lg text-[#1E7A4C] font-bold min-touch";
+      } else if (['SCR-16', 'SCR-17'].includes(screenId)) {
+        document.getElementById('nav-btn-requests').className = "flex flex-col items-center justify-center py-1 px-2 rounded-lg text-[#1E7A4C] font-bold min-touch";
+      } else if (['SCR-18', 'SCR-19', 'SCR-23'].includes(screenId)) {
+        document.getElementById('nav-btn-profile').className = "flex flex-col items-center justify-center py-1 px-2 rounded-lg text-[#1E7A4C] font-bold min-touch";
+      }
+    }
+
+    function switchViewMode(mode) {
+      if (mode === 'mobile') {
+        document.getElementById('mobile-view-container').classList.remove('hidden');
+        document.getElementById('desktop-view-container').classList.add('hidden');
+        document.getElementById('btn-mode-mobile').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#1E7A4C] text-white flex items-center gap-1.5 transition';
+        document.getElementById('btn-mode-desktop').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-emerald-200 hover:text-white flex items-center gap-1.5 transition';
+      } else {
+        document.getElementById('mobile-view-container').classList.add('hidden');
+        document.getElementById('desktop-view-container').classList.remove('hidden');
+        document.getElementById('btn-mode-desktop').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#1E7A4C] text-white flex items-center gap-1.5 transition';
+        document.getElementById('btn-mode-mobile').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-emerald-200 hover:text-white flex items-center gap-1.5 transition';
+      }
+    }
+
+    function switchDesktopTab(tabId) {
+      const tabs = ['desk-tab-dashboard', 'desk-tab-applications', 'desk-tab-wizard', 'desk-tab-announcements', 'desk-tab-reports'];
+      tabs.forEach(t => {
+        const el = document.getElementById(t);
+        if (el) el.classList.add('hidden');
+      });
+      document.getElementById(tabId).classList.remove('hidden');
+
+      const navs = ['nav-desk-dashboard', 'nav-desk-tournaments', 'nav-desk-wizard', 'nav-desk-applications', 'nav-desk-announcements', 'nav-desk-reports'];
+      navs.forEach(n => {
+        const btn = document.getElementById(n);
+        if (btn) btn.className = 'w-full text-left px-3 py-3 rounded-xl text-emerald-100 hover:bg-[#1E7A4C]/50 flex items-center gap-3 transition min-touch';
+      });
+    }
+
+    function setWizardStep(step) {
+      for (let s = 1; s <= 4; s++) {
+        document.getElementById(`wizard-step-${s}`).classList.add('hidden');
+        document.getElementById(`step-pill-${s}`).className = 'py-2.5 bg-white border border-[#E1E8E1] text-[#68756C] rounded-xl';
+      }
+      document.getElementById(`wizard-step-${step}`).classList.remove('hidden');
+      document.getElementById(`step-pill-${step}`).className = 'py-2.5 bg-[#1E7A4C] text-white rounded-xl shadow-sm';
+      document.getElementById('wizard-step-indicator').innerText = `चरण ${step} / 4`;
+    }
+
+    function openRosterDrawer(teamName) {
+      document.getElementById('drawer-team-title').innerText = teamName;
+      const drawer = document.getElementById('roster-drawer');
+      drawer.classList.remove('hidden');
+      setTimeout(() => drawer.classList.remove('translate-x-full'), 10);
+    }
+
+    function closeRosterDrawer() {
+      const drawer = document.getElementById('roster-drawer');
+      drawer.classList.add('translate-x-full');
+      setTimeout(() => drawer.classList.add('hidden'), 300);
+    }
+
+    function acceptTeamAction(teamName) {
+      alert(`बधाई! टीम "${teamName}" का आवेदन स्वीकृत कर लिया गया है।`);
+    }
+
+    function rejectTeamAction(teamName) {
+      const reason = prompt(`टीम "${teamName}" को अस्वीकार करने का कारण दर्ज करें:`, 'कोटा पूर्ण हो चुका है');
+      if (reason) alert(`टीम को अस्वीकार किया गया। कारण दर्ज हुआ: ${reason}`);
+    }
+
+    function publishTournamentSuccess() {
+      alert('प्रतियोगिता सफलतापूर्वक प्रकाशित कर दी गई है! WhatsApp शेयर लिंक तैयार है।');
+      switchDesktopTab('desk-tab-dashboard');
+    }
+
+    function saveDraftSuccess() {
+      alert('प्रतियोगिता का ड्राफ्ट सफलतापूर्वक सहेज लिया गया है।');
+      switchDesktopTab('desk-tab-dashboard');
+    }
+
+
+    // ==========================================
+    // SCREEN VIEW GENERATOR (25 SCREENS & STATES)
+    // ==========================================
+    function getScreenHTML(screenId, state) {
+      // 1. Loading State Override
+      if (state === 'LOADING') {
+        return `
+          <div class="space-y-4">
+            <div class="h-6 w-3/4 rounded-lg pulse-skeleton"></div>
+            <div class="h-28 w-full rounded-2xl pulse-skeleton"></div>
+            <div class="h-20 w-full rounded-2xl pulse-skeleton"></div>
+            <div class="h-20 w-full rounded-2xl pulse-skeleton"></div>
+            <div class="h-12 w-full rounded-xl pulse-skeleton mt-8"></div>
+          </div>
+        `;
+      }
+
+      // 2. Error State Override
+      if (state === 'ERROR') {
+        return `
+          <div class="h-full flex flex-col items-center justify-center text-center p-4">
+            <div class="w-16 h-16 rounded-full bg-red-100 text-[#C74D4D] flex items-center justify-center text-3xl mb-4 font-bold">
+              ⚠️
+            </div>
+            <h3 class="font-bold text-base text-[#172019] mb-1">नेटवर्क त्रुटि (Network Error)</h3>
+            <p class="text-xs text-[#68756C] mb-6 leading-relaxed">
+              इंटरनेट कनेक्शन धीमा या बंद है। कृपया अपने कनेक्शन की जांच करें।
+            </p>
+            <button onclick="changeUIState('NORMAL')" class="w-full py-3 bg-[#1E7A4C] text-white rounded-xl font-bold text-xs shadow-md min-touch flex items-center justify-center gap-2">
+              <span>🔄</span> <span>पुनः प्रयास करें (Retry)</span>
+            </button>
+          </div>
+        `;
+      }
+
+      // 3. Screen-Specific Layouts
+      switch (screenId) {
+        case 'SCR-01': // Welcome
+          return `
+            <div class="flex flex-col justify-between h-full py-2">
+              <div class="text-center pt-4">
+                <div class="w-20 h-20 mx-auto bg-[#1E7A4C]/15 rounded-3xl flex items-center justify-center text-4xl mb-4 text-[#1E7A4C]">
+                  🏏
+                </div>
+                <h2 class="text-xl font-black text-[#123B2A] tracking-tight">भदोही क्रिकेट प्लेटफ़ॉर्म</h2>
+                <p class="text-xs text-[#68756C] mt-1.5 px-4 leading-relaxed">
+                  ग्रामीण क्रिकेट प्रतियोगिताओं, कप्तानों और खिलाड़ियों का विश्वसनीय डिजिटल समन्वय केंद्र।
+                </p>
+                
+                <div class="mt-6 bg-white p-3 rounded-2xl border border-[#E1E8E1] text-left mx-1">
+                  <span class="text-[11px] font-bold text-[#172019] block mb-1">भाषा चुनें (Select Language)</span>
+                  <div class="flex gap-2">
+                    <button class="flex-1 py-2 rounded-xl bg-[#1E7A4C] text-white font-bold text-xs min-touch">हिंदी (Hindi)</button>
+                    <button class="flex-1 py-2 rounded-xl bg-[#F6F8F3] text-[#68756C] border border-[#E1E8E1] font-semibold text-xs min-touch">English</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-4 pb-2">
+                <label class="flex items-start gap-2.5 p-3 bg-white rounded-2xl border border-[#E1E8E1] cursor-pointer">
+                  <input type="checkbox" checked class="w-4 h-4 mt-0.5 accent-[#1E7A4C] rounded">
+                  <span class="text-[11px] text-[#172019] leading-tight">
+                    <strong>आयु घोषणा:</strong> मैं प्रमाणित करता हूँ कि मेरी आयु <strong>18 वर्ष या उससे अधिक</strong> है।
+                  </span>
+                </label>
+
+                <button onclick="navigateTo('SCR-02')" class="w-full py-3.5 bg-[#1E7A4C] hover:bg-[#165a38] text-white rounded-2xl font-bold text-sm shadow-md min-touch flex items-center justify-center gap-2">
+                  <span>शुरू करें (Get Started)</span> <span>→</span>
+                </button>
+              </div>
+            </div>
+          `;
+
+        case 'SCR-02': // Registration
+          return `
+            <div class="space-y-4">
+              <div class="border-b border-[#E1E8E1] pb-2">
+                <h3 class="font-bold text-base text-[#123B2A]">नया खाता बनाएं</h3>
+                <p class="text-xs text-[#68756C]">केवल 10-अंकीय मोबाइल नंबर व 6-अंकीय पिन दर्ज करें</p>
+              </div>
+
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-semibold mb-1 text-[#172019]">मोबाइल नंबर (Mobile Number) *</label>
+                  <div class="flex items-center bg-white border border-[#E1E8E1] rounded-2xl px-3 py-2.5">
+                    <span class="text-xs text-[#68756C] font-bold mr-2">+91</span>
+                    <input type="tel" maxlength="10" placeholder="9876543210" value="9839123456" class="w-full text-xs font-medium outline-none bg-transparent">
+                  </div>
+                  <span class="text-[10px] text-[#68756C] mt-1 block">यह नंबर कभी सार्वजनिक नहीं किया जाएगा।</span>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold mb-1 text-[#172019]">6-अंकीय सुरक्षा पिन (PIN) *</label>
+                  <input type="password" maxlength="6" value="123456" placeholder="••••••" class="w-full bg-white border border-[#E1E8E1] rounded-2xl p-2.5 text-center text-base tracking-widest outline-none font-bold">
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold mb-1 text-[#172019]">पिन की पुनः पुष्टि करें (Confirm PIN) *</label>
+                  <input type="password" maxlength="6" value="123456" placeholder="••••••" class="w-full bg-white border border-[#E1E8E1] rounded-2xl p-2.5 text-center text-base tracking-widest outline-none font-bold">
+                </div>
+              </div>
+
+              <div class="bg-amber-50 border border-[#F4B942]/60 rounded-2xl p-3 text-[11px] text-amber-900 leading-relaxed">
+                ℹ️ <strong>ओटीपी मुक्त प्रमाणीकरण:</strong> एसएमएस ओटीपी की आवश्यकता नहीं है। पंजीकरण के तुरंत बाद आपको एक गुप्त रिकवरी कोड मिलेगा।
+              </div>
+
+              <button onclick="navigateTo('SCR-04')" class="w-full py-3.5 bg-[#1E7A4C] text-white rounded-2xl font-bold text-xs shadow-md min-touch mt-4">
+                पंजीकरण करें (Register)
+              </button>
+
+              <div class="text-center pt-2">
+                <button onclick="navigateTo('SCR-03')" class="text-xs font-semibold text-[#1E7A4C] hover:underline">
+                  पहले से खाता है? लॉग इन करें
+                </button>
+              </div>
+            </div>
+          `;
+
+        case 'SCR-03': // Login
+          return `
+            <div class="space-y-4">
+              <div class="border-b border-[#E1E8E1] pb-2">
+                <h3 class="font-bold text-base text-[#123B2A]">खाते में लॉग इन करें</h3>
+                <p class="text-xs text-[#68756C]">अपना पंजीकृत मोबाइल नंबर और 6-अंकीय पिन दर्ज करें</p>
+              </div>
+
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-semibold mb-1 text-[#172019]">मोबाइल नंबर</label>
+                  <div class="flex items-center bg-white border border-[#E1E8E1] rounded-2xl px-3 py-2.5">
+                    <span class="text-xs text-[#68756C] font-bold mr-2">+91</span>
+                    <input type="tel" value="9839123456" class="w-full text-xs font-medium outline-none bg-transparent">
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold mb-1 text-[#172019]">6-अंकीय पिन</label>
+                  <input type="password" value="123456" placeholder="••••••" class="w-full bg-white border border-[#E1E8E1] rounded-2xl p-2.5 text-center text-base tracking-widest outline-none font-bold">
+                </div>
+              </div>
+
+              <div class="flex justify-between items-center text-xs">
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" checked class="accent-[#1E7A4C]">
+                  <span class="text-[#68756C]">मुझे याद रखें</span>
+                </label>
+                <button onclick="alert('पिन भूलने पर अपने 8-अक्षरीय रिकवरी कोड का उपयोग करें।')" class="text-[#1E7A4C] font-bold hover:underline">
+                  पिन भूल गए?
+                </button>
+              </div>
+
+              <button onclick="navigateTo('SCR-06')" class="w-full py-3.5 bg-[#1E7A4C] text-white rounded-2xl font-bold text-xs shadow-md min-touch mt-4">
+                लॉग इन करें (Login)
+              </button>
+
+              <div class="text-center pt-2">
+                <button onclick="navigateTo('SCR-02')" class="text-xs font-semibold text-[#1E7A4C] hover:underline">
+                  नया खाता बनाएं (Register)
+                </button>
+              </div>
+            </div>
+          `;
+
+        case 'SCR-04': // Recovery Code Setup
+          return `
+            <div class="space-y-4">
+              <div class="text-center">
+                <div class="w-12 h-12 mx-auto bg-amber-100 text-[#F4B942] rounded-full flex items-center justify-center text-2xl mb-2 font-bold">
+                  🔑
+                </div>
+                <h3 class="font-bold text-base text-[#123B2A]">आपका गुप्त रिकवरी कोड</h3>
+                <p class="text-xs text-[#68756C]">यह कोड केवल एक बार दिखाया जाता है।</p>
+              </div>
+
+              <div class="bg-white border-2 border-dashed border-[#1E7A4C] rounded-2xl p-4 text-center">
+                <span class="text-[10px] text-[#68756C] block uppercase font-bold tracking-wider">Account Recovery Code</span>
+                <span class="text-2xl font-mono font-black text-[#123B2A] tracking-wider my-2 block">BK92-M48Z</span>
+                <button onclick="alert('कोड कॉपी हो गया!')" class="px-3 py-1 bg-[#1E7A4C]/10 text-[#1E7A4C] text-xs font-bold rounded-lg min-touch">
+                  📋 कोड कॉपी करें
+                </button>
+              </div>
+
+              <div class="bg-red-50 border border-red-200 rounded-2xl p-3 text-xs text-red-900 leading-relaxed">
+                ⚠️ <strong>अति महत्वपूर्ण:</strong> यदि आप अपना पिन भूल जाते हैं, तो खाते को पुनः प्राप्त करने का यह एकमात्र साधन है। इसे अपनी डायरी में सुरक्षित लिख लें।
+              </div>
+
+              <label class="flex items-start gap-2 p-3 bg-white rounded-2xl border border-[#E1E8E1] cursor-pointer">
+                <input type="checkbox" checked class="w-4 h-4 mt-0.5 accent-[#1E7A4C]">
+                <span class="text-[11px] text-[#172019]">मैंने अपना रिकवरी कोड डायरी में सुरक्षित नोट कर लिया है।</span>
+              </label>
+
+              <button onclick="navigateTo('SCR-05')" class="w-full py-3.5 bg-[#1E7A4C] text-white rounded-2xl font-bold text-xs shadow-md min-touch">
+                सत्यापित कर आगे बढ़ें →
+              </button>
+            </div>
+          `;
+
+        case 'SCR-05': // Role Selection
+          return `
+            <div class="space-y-4">
+              <div class="text-center">
+                <h3 class="font-bold text-base text-[#123B2A]">अपनी भूमिका चुनें</h3>
+                <p class="text-xs text-[#68756C]">आप बाद में सेटिंग्स से कभी भी स्विच कर सकते हैं</p>
+              </div>
+
+              <div class="space-y-3 pt-2">
+                <div onclick="navigateTo('SCR-06')" class="bg-white p-4 rounded-2xl border-2 border-[#1E7A4C] shadow-sm cursor-pointer hover:bg-emerald-50/40 transition">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-emerald-100 text-[#1E7A4C] rounded-2xl flex items-center justify-center text-2xl font-bold">
+                      🏏
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-sm text-[#172019]">मैं खिलाड़ी हूँ (Player)</h4>
+                      <p class="text-[11px] text-[#68756C] mt-0.5">टूर्नामेंट्स खोजें, खेलें और टीम आमंत्रण प्राप्त करें।</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div onclick="navigateTo('SCR-07')" class="bg-white p-4 rounded-2xl border border-[#E1E8E1] shadow-sm cursor-pointer hover:border-[#1E7A4C] transition">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-amber-100 text-[#F4B942] rounded-2xl flex items-center justify-center text-2xl font-bold">
+                      👑
+                    </div>
+                    <div>
+                      <h4 class="font-bold text-sm text-[#172019]">मैं कैप्टन / संचालक हूँ (Captain)</h4>
+                      <p class="text-[11px] text-[#68756C] mt-0.5">टूर्नामेंट हेतु टीम बनाएं, खिलाड़ी आमंत्रित करें व आवेदन भेजें।</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+
+        case 'SCR-06': // Player Home
+          return `
+            <div class="space-y-4">
+              <!-- Availability Status Card -->
+              <div class="bg-gradient-to-r from-[#123B2A] to-[#1E7A4C] text-white p-4 rounded-2xl shadow-md">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <span class="text-[10px] text-emerald-200 uppercase font-semibold">मेरी खेल स्थिति</span>
+                    <h3 class="font-black text-base text-[#F4B942] mt-0.5">टूर्नामेंट के लिए उपलब्ध</h3>
+                  </div>
+                  <span class="text-xs bg-white/20 px-2.5 py-1 rounded-full font-bold">12 दिन शेष</span>
+                </div>
+                <div class="mt-3 pt-3 border-t border-white/20 flex justify-between items-center text-xs">
+                  <span class="text-emerald-100">ब्लॉक: ज्ञानपुर • ऑलराउंडर</span>
+                  <button onclick="navigateTo('SCR-19')" class="text-[#F4B942] font-bold hover:underline">बदलें →</button>
+                </div>
+              </div>
+
+              <!-- Pending Invitations Banner -->
+              <div onclick="navigateTo('SCR-16')" class="bg-amber-50 border border-[#F4B942] p-3 rounded-2xl flex items-center justify-between cursor-pointer">
+                <div class="flex items-center gap-2">
+                  <span class="text-xl">📩</span>
+                  <div>
+                    <span class="text-xs font-bold text-amber-900 block">1 नया टीम आमंत्रण</span>
+                    <span class="text-[10px] text-amber-800">ज्ञानपुर लायंस के कैप्टन रमेश ने आमंत्रित किया है</span>
+                  </div>
+                </div>
+                <span class="text-xs font-bold text-amber-900">देखें →</span>
+              </div>
+
+              <!-- Open Tournaments Section -->
+              <div>
+                <div class="flex justify-between items-center mb-2">
+                  <h4 class="font-bold text-xs text-[#172019]">निकटवर्ती खुली प्रतियोगिताएं</h4>
+                  <button onclick="navigateTo('SCR-08')" class="text-xs font-bold text-[#1E7A4C]">सभी देखें →</button>
+                </div>
+
+                <div class="space-y-2.5">
+                  <div onclick="navigateTo('SCR-10')" class="bg-white p-3.5 rounded-2xl border border-[#E1E8E1] shadow-sm space-y-2 cursor-pointer">
+                    <div class="flex justify-between items-center">
+                      <span class="text-xs font-bold text-[#172019]">औराई कप 2026</span>
+                      <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">पंजीकरण खुला</span>
+                    </div>
+                    <p class="text-[11px] text-[#68756C]">📍 इंटर कॉलेज ग्राउंड, औराई</p>
+                    <div class="flex justify-between items-center text-[10px] text-[#172019] pt-1 border-t border-[#E1E8E1]">
+                      <span>📅 15 अक्टू - 20 अक्टू</span>
+                      <span class="font-bold text-[#1E7A4C]">₹600 प्रवेश शुल्क (नकद)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+
+        case 'SCR-07': // Captain Home
+          return `
+            <div class="space-y-4">
+              <div class="flex justify-between items-center">
+                <h3 class="font-bold text-sm text-[#172019]">मेरी सक्रिय टीमें (My Teams)</h3>
+                <button onclick="navigateTo('SCR-12')" class="px-3 py-1.5 bg-[#1E7A4C] text-white rounded-xl text-xs font-bold shadow-sm min-touch">
+                  ➕ नई टीम बनाएं
+                </button>
+              </div>
+
+              <!-- Active Team Card -->
+              <div onclick="navigateTo('SCR-13')" class="bg-white p-4 rounded-2xl border border-[#E1E8E1] shadow-sm space-y-3 cursor-pointer">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <h4 class="font-black text-sm text-[#123B2A]">ज्ञानपुर वारियर्स</h4>
+                    <p class="text-[10px] text-[#68756C]">टूर्नामेंट: औराई कप 2026</p>
+                  </div>
+                  <span class="text-[10px] bg-amber-100 text-amber-900 font-bold px-2.5 py-1 rounded-full">समीक्षाधीन (Pending)</span>
+                </div>
+
+                <!-- Squad Progress -->
+                <div>
+                  <div class="flex justify-between text-xs font-semibold mb-1">
+                    <span>स्क्वॉड सदस्य</span>
+                    <span class="text-[#1E7A4C]">12 / 15 स्वीकृत</span>
+                  </div>
+                  <div class="w-full h-2 bg-zinc-200 rounded-full overflow-hidden">
+                    <div class="h-full bg-[#1E7A4C] w-[80%]"></div>
+                  </div>
+                </div>
+
+                <div class="flex justify-between items-center text-xs pt-2 border-t border-[#E1E8E1]">
+                  <span class="text-[#68756C]">लंबित आमंत्रण: 3</span>
+                  <span class="text-[#1E7A4C] font-bold">रोस्टर प्रबंधित करें →</span>
+                </div>
+              </div>
+
+              <!-- Quick Scout CTA -->
+              <div onclick="navigateTo('SCR-14')" class="bg-emerald-50 border border-[#1E7A4C]/40 p-3 rounded-2xl flex items-center justify-between cursor-pointer">
+                <div>
+                  <span class="text-xs font-bold text-[#1E7A4C] block">खिलाड़ी खोजें (Scout Players)</span>
+                  <span class="text-[10px] text-[#68756C]">भदोही के उपलब्ध गेंदबाजों व बल्लेबाजों को आमंत्रित करें</span>
+                </div>
+                <span class="text-lg">🔍</span>
+              </div>
+            </div>
+          `;
+
+        case 'SCR-08': // Tournament Listing
+          return `
+            <div class="space-y-3">
+              <div class="flex gap-2">
+                <div class="flex-1 bg-white border border-[#E1E8E1] rounded-2xl px-3 py-2 flex items-center gap-2">
+                  <span>🔍</span>
+                  <input type="text" placeholder="टूर्नामेंट खोजें..." class="w-full text-xs outline-none bg-transparent">
+                </div>
+                <button onclick="navigateTo('SCR-09')" class="px-3 py-2 bg-[#123B2A] text-white rounded-2xl text-xs font-bold flex items-center gap-1 min-touch">
+                  <span>⚙️</span> फ़िल्टर
+                </button>
+              </div>
+
+              <div class="space-y-2.5 pt-1">
+                <div onclick="navigateTo('SCR-10')" class="bg-white p-3.5 rounded-2xl border border-[#E1E8E1] shadow-sm space-y-2 cursor-pointer">
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-[#172019]">औराई प्रीमियर कप 2026</span>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">पंजीकरण खुला</span>
+                  </div>
+                  <p class="text-[11px] text-[#68756C]">📍 इंटर कॉलेज मैदान, औराई (औराई ब्लॉक)</p>
+                  <div class="flex justify-between items-center text-[10px] text-[#172019] pt-1 border-t border-[#E1E8E1]">
+                    <span>🏏 12 Overs • टेनिस गेंद</span>
+                    <span class="font-bold text-[#1E7A4C]">अंतिम तिथि: 05 नवं</span>
+                  </div>
+                </div>
+
+                <div onclick="navigateTo('SCR-10')" class="bg-white p-3.5 rounded-2xl border border-[#E1E8E1] shadow-sm space-y-2 cursor-pointer">
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-[#172019]">ज्ञानपुर क्रिकेट महाकुंभ</span>
+                    <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">शीघ्र शुरू</span>
+                  </div>
+                  <p class="text-[11px] text-[#68756C]">📍 काशी नरेश ग्राउंड, ज्ञानपुर</p>
+                  <div class="flex justify-between items-center text-[10px] text-[#172019] pt-1 border-t border-[#E1E8E1]">
+                    <span>🏏 10 Overs • कॉस्को गेंद</span>
+                    <span class="font-bold text-[#1E7A4C]">अंतिम तिथि: 12 नवं</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+
+        case 'SCR-10': // Tournament Details
+          return `
+            <div class="space-y-3">
+              <div class="bg-white p-4 rounded-2xl border border-[#E1E8E1] shadow-sm space-y-3">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h3 class="font-black text-sm text-[#123B2A]">औराई प्रीमियर कप 2026</h3>
+                    <p class="text-xs text-[#68756C] mt-0.5">आयोजक: राजेश बिंद (ग्राम प्रधान प्रतिनिधि)</p>
+                  </div>
+                  <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">खुला है</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs bg-[#F6F8F3] p-3 rounded-xl border border-[#E1E8E1]">
+                  <div>
+                    <span class="text-[#68756C] block text-[10px]">स्थान:</span>
+                    <span class="font-bold">इंटर कॉलेज ग्राउंड, औराई</span>
+                  </div>
+                  <div>
+                    <span class="text-[#68756C] block text-[10px]">तारीख:</span>
+                    <span class="font-bold">15 - 20 नवंबर 2026</span>
+                  </div>
+                  <div>
+                    <span class="text-[#68756C] block text-[10px]">प्रारूप:</span>
+                    <span class="font-bold">12 ओवर (टेनिस गेंद)</span>
+                  </div>
+                  <div>
+                    <span class="text-[#68756C] block text-[10px]">प्रवेश शुल्क:</span>
+                    <span class="font-bold text-[#1E7A4C]">₹600 (मैदान पर नकद)</span>
+                  </div>
+                </div>
+
+                <div class="text-[11px] text-[#68756C] leading-relaxed">
+                  <strong>नियम:</strong> 18 वर्ष से कम आयु मान्य नहीं। आधार कार्ड लाना अनिवार्य। अंतिम निर्णय आयोजन समिति का होगा।
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                  <button onclick="alert('WhatsApp शेयर लिंक तैयार हो गया है!')" class="flex-1 py-2.5 bg-emerald-100 text-emerald-900 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 min-touch">
+                    <span>💬</span> WhatsApp शेयर
+                  </button>
+                  <button onclick="navigateTo('SCR-11')" class="flex-1 py-2.5 bg-[#1E7A4C] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 min-touch shadow-md">
+                    <span>📝</span> टीम आवेदन करें
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+
+        case 'SCR-13': // Team Details
+          return `
+            <div class="space-y-3">
+              <div class="bg-white p-3.5 rounded-2xl border border-[#E1E8E1] space-y-2">
+                <div class="flex justify-between items-center">
+                  <h3 class="font-black text-sm text-[#123B2A]">ज्ञानपुर वॉरियर्स</h3>
+                  <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">12 खिलाड़ी</span>
+                </div>
+                <p class="text-xs text-[#68756C]">कैप्टन: आप (सुरेश कुमार)</p>
+
+                <div class="flex gap-2 pt-1">
+                  <button onclick="navigateTo('SCR-14')" class="flex-1 py-2 bg-[#1E7A4C] text-white rounded-xl text-xs font-bold min-touch">
+                    ➕ खिलाड़ी जोड़ें
+                  </button>
+                  <button onclick="navigateTo('SCR-11')" class="flex-1 py-2 bg-[#123B2A] text-white rounded-xl text-xs font-bold min-touch">
+                    टूर्नामेंट में भेजें
+                  </button>
+                </div>
+              </div>
+
+              <!-- Members Roster -->
+              <div class="space-y-1.5">
+                <span class="text-xs font-bold text-[#172019] block px-1">स्वीकृत सदस्य (12)</span>
+                <div class="p-2.5 bg-white rounded-2xl border border-[#E1E8E1] flex justify-between items-center">
+                  <div>
+                    <span class="text-xs font-bold text-[#172019] block">सुरेश कुमार (कैप्टन)</span>
+                    <span class="text-[10px] text-[#68756C]">बल्लेबाज • ज्ञानपुर</span>
+                  </div>
+                  <span class="text-[10px] text-[#1E7A4C] font-bold">कैप्टन</span>
+                </div>
+                <div class="p-2.5 bg-white rounded-2xl border border-[#E1E8E1] flex justify-between items-center">
+                  <div>
+                    <span class="text-xs font-bold text-[#172019] block">विपिन मिश्रा</span>
+                    <span class="text-[10px] text-[#68756C]">मध्यम तेज गेंदबाज • औराई</span>
+                  </div>
+                  <span class="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded">स्वीकृत</span>
+                </div>
+              </div>
+            </div>
+          `;
+
+        case 'SCR-16': // Received Invitations
+          return `
+            <div class="space-y-3">
+              <h3 class="font-bold text-sm text-[#172019]">प्राप्त टीम आमंत्रण</h3>
+
+              <div class="bg-white p-4 rounded-2xl border-2 border-[#1E7A4C] shadow-sm space-y-3">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <span class="text-[10px] text-[#1E7A4C] font-bold uppercase tracking-wider">नया आमंत्रण</span>
+                    <h4 class="font-black text-sm text-[#172019] mt-0.5">ज्ञानपुर लायंस</h4>
+                    <p class="text-xs text-[#68756C]">कैप्टन: रमेश कुमार • औराई प्रीमियर कप</p>
+                  </div>
+                  <span class="text-xl">📩</span>
+                </div>
+
+                <div class="bg-[#F6F8F3] p-2.5 rounded-xl border border-[#E1E8E1] text-[11px] text-[#68756C] leading-relaxed">
+                  ℹ️ आमंत्रण स्वीकार करने पर आप टीम के रोस्टर में शामिल हो जाएंगे। मैच एकादश व यात्रा का निर्णय कैप्टन के साथ ऑफलाइन रहेगा।
+                </div>
+
+                <div class="flex gap-2 pt-1">
+                  <button onclick="alert('आमंत्रण अस्वीकार किया गया')" class="flex-1 py-2.5 bg-zinc-100 text-[#C74D4D] rounded-xl text-xs font-bold min-touch">
+                    अस्वीकार करें
+                  </button>
+                  <button onclick="alert('बधाई! आपने ज्ञानपुर लायंस का आमंत्रण स्वीकार कर लिया है।')" class="flex-1 py-2.5 bg-[#1E7A4C] text-white rounded-xl text-xs font-bold shadow-md min-touch">
+                    स्वीकार करें
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+
+        case 'SCR-18': // Player Profile
+          return `
+            <div class="space-y-4">
+              <div class="bg-white p-4 rounded-2xl border border-[#E1E8E1] text-center shadow-sm">
+                <div class="w-16 h-16 mx-auto bg-emerald-100 text-[#1E7A4C] rounded-full flex items-center justify-center text-2xl font-bold mb-2">
+                  अ
+                </div>
+                <h3 class="font-black text-base text-[#172019]">अमित सिंह</h3>
+                <p class="text-xs text-[#68756C]">ग्राम: गोपीगंज • ब्लॉक: ज्ञानपुर</p>
+                <div class="mt-2 inline-block bg-emerald-50 text-[#1E7A4C] border border-emerald-200 px-3 py-1 rounded-full text-xs font-bold">
+                  🏏 ऑलराउंडर (दाएं हाथ)
+                </div>
+              </div>
+
+              <div class="bg-white p-3.5 rounded-2xl border border-[#E1E8E1] space-y-3">
+                <span class="text-xs font-bold text-[#172019] block">गोपनीयता एवं संपर्क सेटिंग्स</span>
+                <label class="flex justify-between items-center cursor-pointer">
+                  <span class="text-xs text-[#172019]">कैप्टन को WhatsApp संपर्क की अनुमति दें</span>
+                  <input type="checkbox" checked class="w-4 h-4 accent-[#1E7A4C]">
+                </label>
+                <p class="text-[10px] text-[#68756C]">आपका फ़ोन नंबर सार्वजनिक नहीं होगा। संपर्क केवल स्वीकृत टीम के कैप्टन के साथ होगा।</p>
+              </div>
+
+              <button onclick="navigateTo('SCR-19')" class="w-full py-3 bg-[#123B2A] text-white rounded-2xl font-bold text-xs min-touch">
+                उपलब्धता प्रबंधित करें (15/30 Days) →
+              </button>
+            </div>
+          `;
+
+        case 'SCR-24': // Account Deletion
+          return `
+            <div class="space-y-4">
+              <div class="bg-red-50 border border-red-200 p-4 rounded-2xl text-center space-y-2">
+                <span class="text-3xl">⚠️</span>
+                <h3 class="font-bold text-base text-red-900">खाता स्थायी रूप से हटाएं</h3>
+                <p class="text-xs text-red-700 leading-relaxed">
+                  यह क्रिया अपरिवर्तनीय है। आपकी खेल प्रोफ़ाइल, उपलब्धता और टीम संबंध तुरंत हटा दिए जाएंगे।
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold mb-1 text-[#172019]">हटाने की पुष्टि हेतु 6-अंकीय पिन दर्ज करें:</label>
+                <input type="password" maxlength="6" placeholder="••••••" class="w-full bg-white border border-[#E1E8E1] rounded-2xl p-2.5 text-center text-base tracking-widest outline-none font-bold">
+              </div>
+
+              <button onclick="alert('खाता हटाने का अनुरोध सत्यापित हुआ।')" class="w-full py-3.5 bg-[#C74D4D] text-white rounded-2xl font-bold text-xs shadow-md min-touch">
+                स्थायी रूप से खाता हटाएं (Delete Account)
+              </button>
+            </div>
+          `;
+
+        default:
+          return `
+            <div class="bg-white p-4 rounded-2xl border border-[#E1E8E1] shadow-sm space-y-3">
+              <div class="flex items-center gap-2 text-[#1E7A4C]">
+                <span class="text-xl">📄</span>
+                <h3 class="font-bold text-sm text-[#172019]">${SCREENS.find(s=>s.id===screenId)?.name || screenId}</h3>
+              </div>
+              <p class="text-xs text-[#68756C] leading-relaxed">
+                ${SCREENS.find(s=>s.id===screenId)?.purpose || 'विस्तृत इंटरफ़ेस विनिर्देश उपलब्ध है।'}
+              </p>
+              <div class="p-3 bg-[#F6F8F3] rounded-xl border border-[#E1E8E1] text-[11px] text-[#172019]">
+                💡 <strong>अस्वीकरण:</strong> कोई स्कोरिंग, रैंकिंग या भुगतान नहीं।
+              </div>
+              <button onclick="navigateTo('SCR-06')" class="w-full py-2.5 bg-[#1E7A4C] text-white rounded-xl font-bold text-xs min-touch">
+                होम पर वापस जाएं
+              </button>
+            </div>
+          `;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,414 @@
+// =====================================================================
+// Bhadohi Village Cricket Platform (bvcp)
+// Prisma Schema Definition (ORM Data Layer)
+// Target: PostgreSQL 15+
+// =====================================================================
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==========================================
+// 1. ENUMS
+// ==========================================
+
+enum UserRole {
+  PLAYER
+  ORGANIZER
+  ADMIN
+}
+
+enum CricketRole {
+  BATSMAN
+  BOWLER
+  ALL_ROUNDER
+  WICKET_KEEPER
+}
+
+enum BhadohiBlock {
+  GYANPUR
+  AURAI
+  BHADOHI
+  SURIYAWAN
+  DEEGH
+  ABHOLI
+}
+
+enum TournamentStatus {
+  DRAFT
+  PUBLISHED
+  REGISTRATION_CLOSED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum BallType {
+  TENNIS
+  LEATHER
+  COSCO
+}
+
+enum TeamStatus {
+  FORMING
+  APPLIED
+  ACCEPTED
+  ARCHIVED
+}
+
+enum MemberRole {
+  CAPTAIN
+  VICE_CAPTAIN
+  PLAYER
+}
+
+enum MemberStatus {
+  CONFIRMED
+  REMOVED
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  CANCELLED
+}
+
+enum NotificationType {
+  INVITE_RECEIVED
+  INVITE_ACCEPTED
+  INVITE_DECLINED
+  APPLICATION_ACCEPTED
+  APPLICATION_REJECTED
+  TOURNAMENT_ANNOUNCEMENT
+  TOURNAMENT_CANCELLED
+  SYSTEM
+}
+
+enum ReportTargetType {
+  USER
+  TEAM
+  TOURNAMENT
+}
+
+enum ReportReason {
+  FAKE_INFO
+  MISBEHAVIOR
+  INAPPROPRIATE_CONTENT
+  UNDERAGE
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+  ACTION_TAKEN
+}
+
+enum ExpiryJobType {
+  AVAILABILITY_EXPIRY
+  INVITATION_EXPIRY
+  TOURNAMENT_ARCHIVAL
+  PII_SCRUBBING
+}
+
+enum JobStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+enum SupportStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+// ==========================================
+// 2. MODELS
+// ==========================================
+
+model User {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mobileNumber          String            @unique @map("mobile_number") @db.Char(10)
+  pinHash               String            @map("pin_hash") @db.VarChar(255)
+  recoveryCodeHash      String            @map("recovery_code_hash") @db.VarChar(255)
+  isAgeVerified         Boolean           @default(false) @map("is_age_verified")
+  role                  UserRole          @default(PLAYER)
+  isActive              Boolean           @default(true) @map("is_active")
+  failedLoginAttempts   Int               @default(0) @map("failed_login_attempts")
+  lockedUntil           DateTime?         @map("locked_until") @db.Timestamptz()
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt             DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  profile               PlayerProfile?
+  captainedTeams        Team[]            @relation("CaptainTeams")
+  teamMemberships       TeamMember[]      @relation("PlayerMemberships")
+  organizedTournaments  Tournament[]      @relation("OrganizerTournaments")
+  sentInvitations       PlayerInvitation[] @relation("InviterUser")
+  receivedInvitations   PlayerInvitation[] @relation("InviteeUser")
+  applicationsSubmitted TournamentApplication[] @relation("CaptainApplications")
+  applicationsReviewed  TournamentApplication[] @relation("ReviewerUser")
+  notifications         Notification[]
+  reportsFiled          Report[]          @relation("ReporterUser")
+  reportsReviewed       Report[]          @relation("ReportReviewer")
+  blocksInitiated       Block[]           @relation("BlockerUser")
+  blocksReceived        Block[]           @relation("BlockedUser")
+  auditActions          AuditLog[]        @relation("ActorUser")
+  supportRequests       SupportRequest[]
+
+  @@index([mobileNumber])
+  @@index([isActive, role])
+  @@map("users")
+}
+
+model PlayerProfile {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                String            @unique @map("user_id") @db.Uuid
+  fullName              String            @map("full_name") @db.VarChar(100)
+  village               String            @db.VarChar(100)
+  block                 BhadohiBlock
+  primaryRole           CricketRole       @map("primary_role")
+  battingStyle          String            @map("batting_style") @db.VarChar(50)
+  bowlingStyle          String            @map("bowling_style") @db.VarChar(50)
+  isAvailable           Boolean           @default(true) @map("is_available")
+  availabilityExpiresAt DateTime          @map("availability_expires_at") @db.Timestamptz()
+  allowWhatsappContact  Boolean           @default(true) @map("allow_whatsapp_contact")
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt             DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([block, primaryRole, isAvailable])
+  @@index([isAvailable, availabilityExpiresAt])
+  @@map("player_profiles")
+}
+
+model Tournament {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  organizerUserId       String            @map("organizer_user_id") @db.Uuid
+  title                 String            @db.VarChar(150)
+  groundLocation        String            @map("ground_location") @db.VarChar(150)
+  village               String            @db.VarChar(100)
+  block                 BhadohiBlock
+  startDate             DateTime          @map("start_date") @db.Date
+  endDate               DateTime          @map("end_date") @db.Date
+  registrationOpenDate  DateTime          @map("registration_open_date") @db.Date
+  registrationCloseDate DateTime          @map("registration_close_date") @db.Date
+  maxTeams              Int               @map("max_teams")
+  minSquadSize          Int               @default(11) @map("min_squad_size")
+  maxSquadSize          Int               @default(15) @map("max_squad_size")
+  matchFormat           String            @map("match_format") @db.VarChar(50)
+  ballType              BallType          @default(TENNIS) @map("ball_type")
+  entryFeeNote          String            @map("entry_fee_note") @db.VarChar(255)
+  rulesText             String            @map("rules_text") @db.Text
+  disclaimerText        String            @map("disclaimer_text") @db.Text
+  status                TournamentStatus  @default(DRAFT)
+  cancellationReason    String?           @map("cancellation_reason") @db.Text
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt             DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  organizer             User              @relation("OrganizerTournaments", fields: [organizerUserId], references: [id], onDelete: Restrict)
+  teams                 Team[]
+  applications          TournamentApplication[]
+  invitations           PlayerInvitation[]
+
+  @@index([block, status, startDate])
+  @@index([organizerUserId, status])
+  @@map("tournaments")
+}
+
+model Team {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tournamentId          String            @map("tournament_id") @db.Uuid
+  captainUserId         String            @map("captain_user_id") @db.Uuid
+  teamName              String            @map("team_name") @db.VarChar(100)
+  village               String            @db.VarChar(100)
+  status                TeamStatus        @default(FORMING)
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt             DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  tournament            Tournament        @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  captain               User              @relation("CaptainTeams", fields: [captainUserId], references: [id], onDelete: Restrict)
+  members               TeamMember[]
+  applications          TournamentApplication[]
+  invitations           PlayerInvitation[]
+
+  @@unique([tournamentId, teamName])
+  @@index([tournamentId, status])
+  @@index([captainUserId])
+  @@map("teams")
+}
+
+model TeamMember {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId                String            @map("team_id") @db.Uuid
+  playerUserId          String            @map("player_user_id") @db.Uuid
+  memberRole            MemberRole        @default(PLAYER) @map("member_role")
+  status                MemberStatus      @default(CONFIRMED)
+  joinedAt              DateTime          @default(now()) @map("joined_at") @db.Timestamptz()
+
+  team                  Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  player                User              @relation("PlayerMemberships", fields: [playerUserId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, playerUserId])
+  @@index([playerUserId])
+  @@index([teamId, status])
+  @@map("team_members")
+}
+
+model TournamentApplication {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tournamentId          String            @map("tournament_id") @db.Uuid
+  teamId                String            @map("team_id") @db.Uuid
+  captainUserId         String            @map("captain_user_id") @db.Uuid
+  status                ApplicationStatus @default(PENDING)
+  rejectionReason       String?           @map("rejection_reason") @db.Text
+  appliedAt             DateTime          @default(now()) @map("applied_at") @db.Timestamptz()
+  reviewedAt            DateTime?         @map("reviewed_at") @db.Timestamptz()
+  reviewedBy            String?           @map("reviewed_by") @db.Uuid
+
+  tournament            Tournament        @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  team                  Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  captain               User              @relation("CaptainApplications", fields: [captainUserId], references: [id], onDelete: Restrict)
+  reviewer              User?             @relation("ReviewerUser", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@unique([tournamentId, teamId])
+  @@index([tournamentId, status])
+  @@index([captainUserId])
+  @@map("tournament_applications")
+}
+
+model PlayerInvitation {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId                String            @map("team_id") @db.Uuid
+  tournamentId          String            @map("tournament_id") @db.Uuid
+  inviterUserId         String            @map("inviter_user_id") @db.Uuid
+  inviteeUserId         String            @map("invitee_user_id") @db.Uuid
+  status                InvitationStatus  @default(PENDING)
+  invitedAt             DateTime          @default(now()) @map("invited_at") @db.Timestamptz()
+  respondedAt           DateTime?         @map("responded_at") @db.Timestamptz()
+  expiresAt             DateTime          @map("expires_at") @db.Timestamptz()
+
+  team                  Team              @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  tournament            Tournament        @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  inviter               User              @relation("InviterUser", fields: [inviterUserId], references: [id], onDelete: Restrict)
+  invitee               User              @relation("InviteeUser", fields: [inviteeUserId], references: [id], onDelete: Cascade)
+
+  @@index([inviteeUserId, status])
+  @@index([teamId, status])
+  @@index([status, expiresAt])
+  @@map("player_invitations")
+}
+
+model Notification {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                String            @map("user_id") @db.Uuid
+  title                 String            @db.VarChar(150)
+  message               String            @db.Text
+  type                  NotificationType
+  referenceId           String?           @map("reference_id") @db.Uuid
+  isRead                Boolean           @default(false) @map("is_read")
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz()
+
+  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead, createdAt(sort: Desc)])
+  @@map("notifications")
+}
+
+model Report {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  reporterUserId        String            @map("reporter_user_id") @db.Uuid
+  targetType            ReportTargetType  @map("target_type")
+  targetId              String            @map("target_id") @db.Uuid
+  reasonCategory        ReportReason      @map("reason_category")
+  description           String?           @db.VarChar(255)
+  status                ReportStatus      @default(PENDING)
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz()
+  reviewedAt            DateTime?         @map("reviewed_at") @db.Timestamptz()
+  reviewedBy            String?           @map("reviewed_by") @db.Uuid
+
+  reporter              User              @relation("ReporterUser", fields: [reporterUserId], references: [id], onDelete: Restrict)
+  reviewer              User?             @relation("ReportReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([reporterUserId, createdAt])
+  @@map("reports")
+}
+
+model Block {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  blockerUserId         String            @map("blocker_user_id") @db.Uuid
+  blockedUserId         String            @map("blocked_user_id") @db.Uuid
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz()
+
+  blocker               User              @relation("BlockerUser", fields: [blockerUserId], references: [id], onDelete: Cascade)
+  blocked               User              @relation("BlockedUser", fields: [blockedUserId], references: [id], onDelete: Cascade)
+
+  @@unique([blockerUserId, blockedUserId])
+  @@index([blockerUserId, blockedUserId])
+  @@map("blocks")
+}
+
+model AuditLog {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorUserId           String?           @map("actor_user_id") @db.Uuid
+  action                String            @db.VarChar(100)
+  resourceType          String            @map("resource_type") @db.VarChar(50)
+  resourceId            String?           @map("resource_id") @db.Uuid
+  details               Json?             @db.JsonB
+  ipAddress             String?           @map("ip_address") @db.VarChar(45)
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz()
+
+  actor                 User?             @relation("ActorUser", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId, createdAt(sort: Desc)])
+  @@index([resourceType, resourceId])
+  @@map("audit_logs")
+}
+
+model ExpiryJob {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  jobType               ExpiryJobType     @map("job_type")
+  status                JobStatus
+  recordsAffected       Int               @default(0) @map("records_affected")
+  errorDetails          String?           @map("error_details") @db.Text
+  startedAt             DateTime          @default(now()) @map("started_at") @db.Timestamptz()
+  completedAt           DateTime?         @map("completed_at") @db.Timestamptz()
+
+  @@index([jobType, status, startedAt(sort: Desc)])
+  @@map("expiry_jobs")
+}
+
+model SupportRequest {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                String?           @map("user_id") @db.Uuid
+  mobileNumber          String            @map("mobile_number") @db.Char(10)
+  subject               String            @db.VarChar(150)
+  message               String            @db.Text
+  status                SupportStatus     @default(OPEN)
+  adminNotes            String?           @map("admin_notes") @db.Text
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt             DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user                  User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt(sort: Desc)])
+  @@map("support_requests")
+}

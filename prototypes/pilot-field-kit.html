@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ऑन-ग्राउंड फ़ील्ड किट एवं रिकवरी कार्ड - भदोही ग्रामीण क्रिकेट प्लेटफ़ॉर्म</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: white !important;
+        color: black !important;
+        padding: 0 !important;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+      .card-border {
+        border: 1.5px dashed #4b5563 !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 p-4 sm:p-8 text-slate-800">
+
+  <!-- No-Print Action Bar -->
+  <div class="no-print max-w-5xl mx-auto mb-6 bg-[#123B2A] text-white p-4 rounded-2xl shadow-xl flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <span class="text-3xl">🖨️</span>
+      <div>
+        <h1 class="text-lg font-bold">ऑन-ग्राउंड फ़ील्ड किट एवं प्रिंट करने योग्य रिकवरी कार्ड्स</h1>
+        <p class="text-xs text-emerald-200">A4 पेपर पर प्रिंट करने हेतु अनुकूलित (Ctrl + P दबाएं या 'प्रिंट करें' पर क्लिक करें)</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="window.print()" class="px-5 py-2.5 rounded-xl font-bold text-xs bg-[#F4B942] hover:bg-amber-400 text-[#123B2A] shadow-md transition flex items-center gap-2">
+        <span>🖨️</span> अभी A4 प्रिंट करें (Print Sheet)
+      </button>
+      <a href="/" class="px-4 py-2.5 rounded-xl font-semibold text-xs bg-[#1E7A4C] hover:bg-emerald-600 text-white transition">
+        ← वापस ऐप पर जाएं
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Printable Document Container -->
+  <div class="max-w-5xl mx-auto bg-white p-6 sm:p-10 rounded-2xl shadow-sm border border-slate-200">
+
+    <!-- Header Section -->
+    <header class="border-b-2 border-slate-800 pb-4 mb-6 flex justify-between items-start">
+      <div>
+        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-800 mb-1">
+          <span>🏏 जिला भदोही (संत रविदास नगर)</span> • <span>उत्तर प्रदेश</span>
+        </div>
+        <h2 class="text-2xl font-black text-slate-900">भदोही ग्रामीण क्रिकेट प्लेटफ़ॉर्म (`bvcp`)</h2>
+        <p class="text-sm font-semibold text-slate-600">ऑन-ग्राउंड समन्वयक फ़ील्ड किट एवं आधिकारिक परिचालन निर्देशिका</p>
+      </div>
+      <div class="text-right text-xs">
+        <span class="inline-block bg-slate-900 text-white font-mono font-bold px-2.5 py-1 rounded">संस्करण: v1.0 पायलट</span>
+        <div class="text-slate-500 mt-1 font-semibold">ज्ञानपुर • औराई • भदोही • सुरियावां • डीघ • अभोली</div>
+      </div>
+    </header>
+
+    <!-- Operational Negative Invariants Notice Banner -->
+    <section class="bg-amber-50 border-2 border-amber-500 rounded-xl p-4 mb-8">
+      <h3 class="font-bold text-amber-900 text-sm flex items-center gap-1.5 mb-1">
+        <span>⚠️</span> मैदान पर अनिवार्य परिचालन नियम (Mandatory Rules for Coordinators)
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-amber-900 font-medium">
+        <div>• <strong>शून्य ऑनलाइन भुगतान:</strong> प्रवेश शुल्क केवल मैदान पर नकद देय है। ऐप में कोई UPI या वॉलेट नहीं है।</div>
+        <div>• <strong>केवल वयस्क (18+):</strong> 18 वर्ष से कम आयु का कोई भी खिलाड़ी पंजीकृत नहीं किया जाएगा।</div>
+        <div>• <strong>शून्य रन/विकेट रैंकिंग:</strong> यह ऐप स्कोरिंग या रैंकिंग के लिए नहीं, केवल टीमों के समन्वय के लिए है।</div>
+        <div>• <strong>मोबाइल गोपनीयता:</strong> खिलाड़ियों के फोन नंबर सार्वजनिक नहीं होते; केवल आमंत्रण पर व्हाट्सएप लिंक खुलता है।</div>
+      </div>
+    </section>
+
+    <!-- Section 1: Coordinator 4-Step Ground Checklist -->
+    <section class="mb-10">
+      <h3 class="text-lg font-bold text-slate-900 border-b border-slate-300 pb-2 mb-4 flex items-center gap-2">
+        <span>📋</span> समन्वयक 4-चरणीय मैदान चेकलिस्ट (Step-by-Step Field Process)
+      </h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div class="border border-slate-300 rounded-xl p-4 bg-slate-50">
+          <div class="font-bold text-emerald-800 text-sm mb-1">१. खिलाड़ी पंजीकरण (Player PIN Setup)</div>
+          <p class="text-slate-600 mb-2">खिलाड़ी को ऐप में 10-अंक का मोबाइल नंबर व 6-अंक का गुप्त पिन दर्ज करने को कहें।</p>
+          <div class="bg-white p-2 rounded border border-slate-200 font-mono text-emerald-700">
+            महत्वपूर्ण: स्क्रीन पर आने वाला 8-अक्षरों का रिकवरी कोड नीचे दिए कट-आउट कार्ड पर लिखवाकर खिलाड़ी को सौंपें।
+          </div>
+        </div>
+
+        <div class="border border-slate-300 rounded-xl p-4 bg-slate-50">
+          <div class="font-bold text-emerald-800 text-sm mb-1">२. कप्तान द्वारा टीम गठन (Squad Formation)</div>
+          <p class="text-slate-600 mb-2">कप्तान "टीम बनाएं" दबाकर स्थानीय उपलब्ध खिलाड़ियों को ब्लॉक/भूमिका अनुसार खोजकर निमंत्रण भेजेंगे।</p>
+          <div class="bg-white p-2 rounded border border-slate-200 font-mono text-emerald-700">
+            नियम: 11 से 15 खिलाड़ी पूरे होने पर ही "टूर्नामेंट में आवेदन" का बटन सक्रिय होता है।
+          </div>
+        </div>
+
+        <div class="border border-slate-300 rounded-xl p-4 bg-slate-50">
+          <div class="font-bold text-emerald-800 text-sm mb-1">३. आवेदन समीक्षा व स्वीकृति (Review & Accept)</div>
+          <p class="text-slate-600 mb-2">आयोजक डैशबोर्ड में टीम का रोस्टर जांचें (सभी 18+ आयु सत्यापित)।</p>
+          <div class="bg-white p-2 rounded border border-slate-200 font-mono text-emerald-700">
+            स्वीकृति के उपरांत कप्तान के व्हाट्सएप पर मैच का समय व मैदान स्थान का सीधा संदेश भेजा जा सकता है।
+          </div>
+        </div>
+
+        <div class="border border-slate-300 rounded-xl p-4 bg-slate-50">
+          <div class="font-bold text-emerald-800 text-sm mb-1">४. नकद शुल्क व मैदान अनुशासन (Ground Cash)</div>
+          <p class="text-slate-600 mb-2">टॉस से पूर्व मैदान पर नकद प्रवेश शुल्क प्राप्त करें और रसीद दें।</p>
+          <div class="bg-white p-2 rounded border border-slate-200 font-mono text-emerald-700">
+            अनुशासनहीनता या विवाद होने पर आयोजक टीम की सदस्यता अस्थायी रूप से रोक सकते हैं।
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Page Break for Printing Cards -->
+    <div class="page-break pt-4"></div>
+
+    <!-- Section 2: Printable Cut-Out PIN Recovery Cards (10 per A4 page) -->
+    <section>
+      <div class="flex items-center justify-between border-b-2 border-slate-800 pb-2 mb-4">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <span>✂️</span> खिलाड़ी / कप्तान गोपनीय रिकवरी कार्ड (Print & Cut Template)
+          </h3>
+          <p class="text-xs text-slate-500">प्रत्येक खिलाड़ी को उसका पिन व रिकवरी कोड लिखकर दें। कैंची से काटकर जेब/डायरी में रखें।</p>
+        </div>
+        <span class="text-xs font-mono font-bold bg-slate-100 border border-slate-300 px-2 py-1 rounded">10 कार्ड्स / A4 शीट</span>
+      </div>
+
+      <!-- 10 Card Grid (2 cols x 5 rows) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+
+        <!-- Card Template Generator (Repeat 10 times) -->
+        <!-- Card 1 -->
+        <div class="card-border border-2 border-dashed border-slate-400 p-3.5 rounded-xl bg-white text-xs">
+          <div class="flex justify-between items-center border-b border-slate-300 pb-1 mb-2">
+            <span class="font-bold text-emerald-800 text-xs">🏏 भदोही क्रिकेट • रिकवरी पर्ची</span>
+            <span class="text-[10px] text-slate-400 font-mono">कार्ड #01</span>
+          </div>
+          <div class="space-y-1.5 text-slate-700">
+            <div>खिलाड़ी नाम: <span class="border-b border-dotted border-slate-500 inline-block w-44">&nbsp;</span></div>
+            <div>मोबाइल नंबर: <span class="border-b border-dotted border-slate-500 inline-block w-40">&nbsp;</span></div>
+            <div class="flex items-center gap-1">
+              <span>मेरा 6-अंकीय पिन:</span>
+              <span class="font-mono font-bold text-slate-800 border border-slate-400 px-1 py-0.5 rounded tracking-widest">[ _ _ _ _ _ _ ]</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span>आपात रिकवरी कोड:</span>
+              <span class="font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-1.5 py-0.5 rounded">[ ____ - ____ ]</span>
+            </div>
+          </div>
+          <div class="text-[9px] text-slate-500 mt-2 pt-1 border-t border-slate-200">
+            ⚠️ पिन भूलने पर इस कोड से पुनः खाता खुलेगा। इसे संभाल कर रखें।
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card-border border-2 border-dashed border-slate-400 p-3.5 rounded-xl bg-white text-xs">
+          <div class="flex justify-between items-center border-b border-slate-300 pb-1 mb-2">
+            <span class="font-bold text-emerald-800 text-xs">🏏 भदोही क्रिकेट • रिकवरी पर्ची</span>
+            <span class="text-[10px] text-slate-400 font-mono">कार्ड #02</span>
+          </div>
+          <div class="space-y-1.5 text-slate-700">
+            <div>खिलाड़ी नाम: <span class="border-b border-dotted border-slate-500 inline-block w-44">&nbsp;</span></div>
+            <div>मोबाइल नंबर: <span class="border-b border-dotted border-slate-500 inline-block w-40">&nbsp;</span></div>
+            <div class="flex items-center gap-1">
+              <span>मेरा 6-अंकीय पिन:</span>
+              <span class="font-mono font-bold text-slate-800 border border-slate-400 px-1 py-0.5 rounded tracking-widest">[ _ _ _ _ _ _ ]</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span>आपात रिकवरी कोड:</span>
+              <span class="font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-1.5 py-0.5 rounded">[ ____ - ____ ]</span>
+            </div>
+          </div>
+          <div class="text-[9px] text-slate-500 mt-2 pt-1 border-t border-slate-200">
+            ⚠️ पिन भूलने पर इस कोड से पुनः खाता खुलेगा। इसे संभाल कर रखें।
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card-border border-2 border-dashed border-slate-400 p-3.5 rounded-xl bg-white text-xs">
+          <div class="flex justify-between items-center border-b border-slate-300 pb-1 mb-2">
+            <span class="font-bold text-emerald-800 text-xs">🏏 भदोही क्रिकेट • रिकवरी पर्ची</span>
+            <span class="text-[10px] text-slate-400 font-mono">कार्ड #03</span>
+          </div>
+          <div class="space-y-1.5 text-slate-700">
+            <div>खिलाड़ी नाम: <span class="border-b border-dotted border-slate-500 inline-block w-44">&nbsp;</span></div>
+            <div>मोबाइल नंबर: <span class="border-b border-dotted border-slate-500 inline-block w-40">&nbsp;</span></div>
+            <div class="flex items-center gap-1">
+              <span>मेरा 6-अंकीय पिन:</span>
+              <span class="font-mono font-bold text-slate-800 border border-slate-400 px-1 py-0.5 rounded tracking-widest">[ _ _ _ _ _ _ ]</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span>आपात रिकवरी कोड:</span>
+              <span class="font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-1.5 py-0.5 rounded">[ ____ - ____ ]</span>
+            </div>
+          </div>
+          <div class="text-[9px] text-slate-500 mt-2 pt-1 border-t border-slate-200">
+            ⚠️ पिन भूलने पर इस कोड से पुनः खाता खुलेगा। इसे संभाल कर रखें।
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="card-border border-2 border-dashed border-slate-400 p-3.5 rounded-xl bg-white text-xs">
+          <div class="flex justify-between items-center border-b border-slate-300 pb-1 mb-2">
+            <span class="font-bold text-emerald-800 text-xs">🏏 भदोही क्रिकेट • रिकवरी पर्ची</span>
+            <span class="text-[10px] text-slate-400 font-mono">कार्ड #04</span>
+          </div>
+          <div class="space-y-1.5 text-slate-700">
+            <div>खिलाड़ी नाम: <span class="border-b border-dotted border-slate-500 inline-block w-44">&nbsp;</span></div>
+            <div>मोबाइल नंबर: <span class="border-b border-dotted border-slate-500 inline-block w-40">&nbsp;</span></div>
+            <div class="flex items-center gap-1">
+              <span>मेरा 6-अंकीय पिन:</span>
+              <span class="font-mono font-bold text-slate-800 border border-slate-400 px-1 py-0.5 rounded tracking-widest">[ _ _ _ _ _ _ ]</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span>आपात रिकवरी कोड:</span>
+              <span class="font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-1.5 py-0.5 rounded">[ ____ - ____ ]</span>
+            </div>
+          </div>
+          <div class="text-[9px] text-slate-500 mt-2 pt-1 border-t border-slate-200">
+            ⚠️ पिन भूलने पर इस कोड से पुनः खाता खुलेगा। इसे संभाल कर रखें।
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="card-border border-2 border-dashed border-slate-400 p-3.5 rounded-xl bg-white text-xs">
+          <div class="flex justify-between items-center border-b border-slate-300 pb-1 mb-2">
+            <span class="font-bold text-emerald-800 text-xs">🏏 भदोही क्रिकेट • रिकवरी पर्ची</span>
+            <span class="text-[10px] text-slate-400 font-mono">कार्ड #05</span>
+          </div>
+          <div class="space-y-1.5 text-slate-700">
+            <div>खिलाड़ी नाम: <span class="border-b border-dotted border-slate-500 inline-block w-44">&nbsp;</span></div>
+            <div>मोबाइल नंबर: <span class="border-b border-dotted border-slate-500 inline-block w-40">&nbsp;</span></div>
+            <div class="flex items-center gap-1">
+              <span>मेरा 6-अंकीय पिन:</span>
+              <span class="font-mono font-bold text-slate-800 border border-slate-400 px-1 py-0.5 rounded tracking-widest">[ _ _ _ _ _ _ ]</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span>आपात रिकवरी कोड:</span>
+              <span class="font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-1.5 py-0.5 rounded">[ ____ - ____ ]</span>
+            </div>
+          </div>
+          <div class="text-[9px] text-slate-500 mt-2 pt-1 border-t border-slate-200">
+            ⚠️ पिन भूलने पर इस कोड से पुनः खाता खुलेगा। इसे संभाल कर रखें।
+          </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="card-border border-2 border-dashed border-slate-400 p-3.5 rounded-xl bg-white text-xs">
+          <div class="flex justify-between items-center border-b border-slate-300 pb-1 mb-2">
+            <span class="font-bold text-emerald-800 text-xs">🏏 भदोही क्रिकेट • रिकवरी पर्ची</span>
+            <span class="text-[10px] text-slate-400 font-mono">कार्ड #06</span>
+          </div>
+          <div class="space-y-1.5 text-slate-700">
+            <div>खिलाड़ी नाम: <span class="border-b border-dotted border-slate-500 inline-block w-44">&nbsp;</span></div>
+            <div>मोबाइल नंबर: <span class="border-b border-dotted border-slate-500 inline-block w-40">&nbsp;</span></div>
+            <div class="flex items-center gap-1">
+              <span>मेरा 6-अंकीय पिन:</span>
+              <span class="font-mono font-bold text-slate-800 border border-slate-400 px-1 py-0.5 rounded tracking-widest">[ _ _ _ _ _ _ ]</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span>आपात रिकवरी कोड:</span>
+              <span class="font-mono font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-1.5 py-0.5 rounded">[ ____ - ____ ]</span>
+            </div>
+          </div>
+          <div class="text-[9px] text-slate-500 mt-2 pt-1 border-t border-slate-200">
+            ⚠️ पिन भूलने पर इस कोड से पुनः खाता खुलेगा। इसे संभाल कर रखें।
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</body>
+</html>

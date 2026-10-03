@@ -1,0 +1,33 @@
+name: BVCP Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify-specifications-and-architecture:
+    name: Verify Specs & Data Models
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run Phase 2 Prototype Verification
+        run: node scripts/verify-phase2-prototypes.js
+
+      - name: Run Phase 3 Schema Verification
+        run: node scripts/verify-phase3-schema.js
+
+      - name: Run Phase 4 Repository Setup Verification
+        run: node scripts/verify-phase4-setup.js
+
+      - name: Run Server Base Unit Tests
+        run: node apps/server/tests/health.test.js

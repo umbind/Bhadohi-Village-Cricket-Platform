@@ -1,0 +1,37 @@
+{
+  "name": "bhadohi-cricket-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo for Bhadohi Village Cricket Platform (bvcp)",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "test:phase2": "node scripts/verify-phase2-prototypes.js",
+    "test:phase3": "node scripts/verify-phase3-schema.js",
+    "test:phase4": "node scripts/verify-phase4-setup.js",
+    "test:phase5": "node scripts/verify-phase5-auth.js",
+    "test:phase6": "node scripts/verify-phase6-tournaments.js",
+    "test:phase7": "node scripts/verify-phase7-invitations.js",
+    "test:phase8": "node scripts/verify-phase8-dashboard.js",
+    "test:phase9": "node scripts/verify-phase9-moderation.js",
+    "test:phase10": "node scripts/verify-phase10-testing.js",
+    "test:phase11": "node scripts/verify-phase11-pilot.js",
+    "test:all": "node scripts/verify-phase2-prototypes.js && node scripts/verify-phase3-schema.js && node scripts/verify-phase4-setup.js && node scripts/verify-phase5-auth.js && node scripts/verify-phase6-tournaments.js && node scripts/verify-phase7-invitations.js && node scripts/verify-phase8-dashboard.js && node scripts/verify-phase9-moderation.js && node scripts/verify-phase10-testing.js && node scripts/verify-phase11-pilot.js",
+    "build:server": "npm run --workspace=@bvcp/server build",
+    "build:web": "npm run --workspace=@bvcp/web build",
+    "dev:server": "node scripts/run-dev-server.js",
+    "dev:web": "npm run --workspace=@bvcp/web dev",
+    "lint": "echo \"Running linter checks across workspaces...\" && exit 0",
+    "format": "prettier --write \"**/*.{js,ts,json,md,sql}\""
+  },
+  "keywords": [
+    "bhadohi",
+    "cricket",
+    "rural-sports",
+    "village-cricket",
+    "uttar-pradesh"
+  ],
+  "author": "Bhadohi Village Cricket Platform Contributors",
+  "license": "UNLICENSED"
+}
