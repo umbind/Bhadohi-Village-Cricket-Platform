@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  verify-specifications-and-architecture:
-    name: Verify Specs & Data Models
+  verify-entire-platform:
+    name: Verify All 11 SDLC Phases (482 Tests)
     runs-on: ubuntu-latest
 
     steps:
@@ -20,14 +20,11 @@ jobs:
         with:
           node-version: 20
 
-      - name: Run Phase 2 Prototype Verification
-        run: node scripts/verify-phase2-prototypes.js
+      - name: Install Monorepo Dependencies
+        run: npm ci || npm install
 
-      - name: Run Phase 3 Schema Verification
-        run: node scripts/verify-phase3-schema.js
+      - name: Build Server Codebase
+        run: npm run build:server
 
-      - name: Run Phase 4 Repository Setup Verification
-        run: node scripts/verify-phase4-setup.js
-
-      - name: Run Server Base Unit Tests
-        run: node apps/server/tests/health.test.js
+      - name: Run Full Automated Test Suite (Phases 0 to 11)
+        run: npm run test:all
