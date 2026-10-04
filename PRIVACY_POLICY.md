@@ -48,7 +48,14 @@ Users retain full control over their account. You can edit your profile details 
 
 ---
 
-## 6. Contact Us
+## 6. Legal Terms & Disclaimers
+For comprehensive legal protections, limitation of liability, sports injury waivers, and anti-gambling covenants under Indian Law, please review our [Legal Disclaimers and Terms of Use](https://github.com/umbind/Bhadohi-Village-Cricket-Platform/blob/main/LEGAL_DISCLAIMER.md).
+
+---
+
+## 7. Contact Us
 For any privacy concerns or support inquiries:
 - **Project Repository:** [https://github.com/umbind/Bhadohi-Village-Cricket-Platform](https://github.com/umbind/Bhadohi-Village-Cricket-Platform)
+- **Legal Terms & Disclaimers:** [LEGAL_DISCLAIMER.md](https://github.com/umbind/Bhadohi-Village-Cricket-Platform/blob/main/LEGAL_DISCLAIMER.md)
 - **District Sports Coordinator:** Bhadohi District, Uttar Pradesh, India.
+

@@ -199,8 +199,9 @@ fun MainScreen(
   // Pre-selected tournament when creating a team from Tournament view
   var preselectedTournamentId by remember { mutableStateOf<String?>(null) }
   var triggerCreateTeamDialog by remember { mutableStateOf(false) }
+  var showLegalDialog by remember { mutableStateOf(false) }
 
-  val tabs = listOf("होम", "मेरी टीमें", "खिलाड़ी पंजीकरण", "खिलाड़ी खोज", "नियम")
+  val tabs = listOf("होम", "मेरी टीमें", "खिलाड़ी पंजीकरण", "खिलाड़ी खोज", "नियम व अस्वीकरण")
 
   Scaffold(
     topBar = {
@@ -242,6 +243,29 @@ fun MainScreen(
           }
         },
         actions = {
+          // Dedicated Legal Disclaimers Button in Top Bar
+          Surface(
+            color = Color(0xFF1E3A8A).copy(alpha = 0.85f),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier
+              .padding(end = 6.dp)
+              .clickable { showLegalDialog = true }
+          ) {
+            Row(
+              modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Text("⚖️", fontSize = 12.sp)
+              Spacer(modifier = Modifier.width(3.dp))
+              Text(
+                "अस्वीकरण",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = White
+              )
+            }
+          }
+
           // Dedicated Home Button in Top Bar
           Surface(
             color = if (selectedTab == 0) AmberHighlight else PrimaryGreen,
@@ -288,7 +312,7 @@ fun MainScreen(
                   1 -> "🛡️"
                   2 -> "👤"
                   3 -> "👥"
-                  else -> "📜"
+                  else -> "⚖️"
                 },
                 fontSize = 18.sp
               )
@@ -312,6 +336,10 @@ fun MainScreen(
       }
     }
   ) { padding ->
+    if (showLegalDialog) {
+      LegalDisclaimersDialog(onDismiss = { showLegalDialog = false })
+    }
+
     Box(
       modifier = Modifier
         .fillMaxSize()
@@ -322,6 +350,7 @@ fun MainScreen(
         0 -> TournamentsView(
           tournaments = tournamentsList,
           onNavigateToRegister = { selectedTab = 2 },
+          onNavigateToRules = { selectedTab = 4 },
           onCreateTeamForTournament = { tourId ->
             preselectedTournamentId = tourId
             triggerCreateTeamDialog = true
@@ -424,6 +453,7 @@ fun MainScreen(
 fun TournamentsView(
   tournaments: List<StoredTournament>,
   onNavigateToRegister: () -> Unit,
+  onNavigateToRules: () -> Unit = {},
   onCreateTeamForTournament: (String) -> Unit,
   onTournamentAdded: (StoredTournament) -> Unit
 ) {
@@ -625,10 +655,11 @@ fun TournamentsView(
           item {
             Surface(color = Color(0xFFFEF3C7), shape = RoundedCornerShape(8.dp)) {
               Text(
-                "⚠️ नियम: कोई ऑनलाइन भुगतान नहीं। शुल्क केवल मैच के दिन मैदान पर नकद स्वीकार्य होगा।",
+                "⚠️ विधिक अस्वीकरण: कोई ऑनलाइन भुगतान नहीं। सट्टेबाजी या जुआ सख्त वर्जित है। शारीरिक चोट (Volenti Non Fit Injuria) व नकद लेन-देन के लिए आयोजक व टीमें स्वयं जिम्मेदार हैं। ऐप की कोई विधिक जवाबदेही नहीं है।",
                 fontSize = 10.sp,
                 color = Color(0xFF92400E),
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
+                lineHeight = 14.sp
               )
             }
           }
@@ -1110,6 +1141,57 @@ fun TournamentsView(
         }
       }
     }
+
+    // Persistent Legal Disclaimer Notice Card at bottom of Tournaments & Fixtures
+    item {
+      Card(
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF3C7)),
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+          .fillMaxWidth()
+          .border(1.dp, Color(0xFFF59E0B), RoundedCornerShape(12.dp))
+          .padding(top = 4.dp, bottom = 12.dp)
+      ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Text("⚖️", fontSize = 16.sp)
+              Spacer(modifier = Modifier.width(6.dp))
+              Text(
+                "विधिक अस्वीकरण (Legal Notice)",
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                color = Color(0xFF92400E)
+              )
+            }
+            Surface(
+              color = Color(0xFFD97706),
+              shape = RoundedCornerShape(6.dp),
+              modifier = Modifier.clickable { onNavigateToRules() }
+            ) {
+              Text(
+                "शर्तें पढ़ें →",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = White,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+              )
+            }
+          }
+          Spacer(modifier = Modifier.height(4.dp))
+          Text(
+            "यह ऐप केवल ग्रामीण खेल समन्वय हेतु है। किसी भी सट्टेबाजी (जुआ), वित्तीय लेनदेन या मैदान पर होने वाली शारीरिक चोट (Volenti Non Fit Injuria) के लिए ऐप या डेवलपर उत्तरदायी नहीं हैं। सभी खिलाड़ी स्वेच्छा से अपने स्वयं के जोखिम पर खेलते हैं।",
+            fontSize = 10.sp,
+            color = Color(0xFF78350F),
+            lineHeight = 14.sp
+          )
+        }
+      }
+    }
   }
 }
 
@@ -1211,6 +1293,16 @@ fun MultiTeamManagementView(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
           )
+
+          Surface(color = Color(0xFFFEF3C7), shape = RoundedCornerShape(8.dp)) {
+            Text(
+              "⚠️ अस्वीकरण: खिलाड़ी स्वेच्छा से मैच में भाग लेते हैं। मैच के दौरान किसी भी शारीरिक चोट (Volenti Non Fit Injuria) व मैदान विवाद के लिए खिलाड़ी एवं टीम स्वयं जिम्मेदार हैं।",
+              fontSize = 10.sp,
+              color = Color(0xFF92400E),
+              modifier = Modifier.padding(6.dp),
+              lineHeight = 13.sp
+            )
+          }
         }
       },
       confirmButton = {
@@ -1709,6 +1801,7 @@ fun PlayerRegistrationAndProfileView(
   var pin by remember { mutableStateOf("") }
   var confirmPin by remember { mutableStateOf("") }
   var isAgeVerified by remember { mutableStateOf(true) }
+  var isTermsAccepted by remember { mutableStateOf(true) }
 
   var fullName by remember { mutableStateOf(currentProfile?.fullName ?: "") }
   var village by remember { mutableStateOf(currentProfile?.village ?: "") }
@@ -2075,6 +2168,22 @@ fun PlayerRegistrationAndProfileView(
               color = if (isAgeVerified) MainText else Color(0xFFDC2626)
             )
           }
+
+          Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Checkbox(
+              checked = isTermsAccepted,
+              onCheckedChange = { isTermsAccepted = it },
+              colors = CheckboxDefaults.colors(checkedColor = PrimaryGreen)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+              "मैं खेल चोट दायित्व मुक्ति (Volenti Non Fit Injuria), शून्य सट्टेबाजी एवं विधिक अस्वीकरण शर्तों से सहमत हूँ।",
+              fontSize = 11.sp,
+              fontWeight = FontWeight.Medium,
+              color = if (isTermsAccepted) MainText else Color(0xFFDC2626),
+              lineHeight = 15.sp
+            )
+          }
         }
       }
     }
@@ -2211,6 +2320,10 @@ fun PlayerRegistrationAndProfileView(
           }
           if (!isAgeVerified) {
             errorMessage = "कृपया 18+ आयु सत्यापन बॉक्स पर टिक करें।"
+            return@Button
+          }
+          if (!isTermsAccepted) {
+            errorMessage = "कृपया खेल चोट दायित्व मुक्ति एवं विधिक अस्वीकरण शर्तों को स्वीकार करें।"
             return@Button
           }
           if (fullName.trim().length < 2) {
@@ -2460,12 +2573,14 @@ fun PlayersView(
 }
 
 // =========================================================================
-// 5. RULES & GROUND SUPPORT / REPORT VIEW (SCR-21 & Universal Invariants)
+// 5. RULES & LEGAL DISCLAIMERS VIEW (SCR-21, Universal Invariants & Legal Protections)
 // =========================================================================
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RulesView() {
   val context = LocalContext.current
+  var subTab by remember { mutableStateOf(0) } // 0: कानूनी अस्वीकरण (Legal), 1: ग्रामीण नियम व रिपोर्ट (Invariants)
+
   var showReportDialog by remember { mutableStateOf(false) }
   var reportReason by remember { mutableStateOf("उम्र सीमा उल्लंघन (Underage)") }
   var reportVillage by remember { mutableStateOf("") }
@@ -2545,69 +2660,475 @@ fun RulesView() {
     modifier = Modifier.fillMaxSize().padding(14.dp),
     verticalArrangement = Arrangement.spacedBy(10.dp)
   ) {
+    // Sub-segment toggle (कानूनी अस्वीकरण vs ग्रामीण नियम)
     item {
-      Card(
-        colors = CardDefaults.cardColors(containerColor = DeepForest),
-        shape = RoundedCornerShape(14.dp),
-        modifier = Modifier.fillMaxWidth()
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .background(White, RoundedCornerShape(12.dp))
+          .padding(4.dp)
+          .border(1.dp, BorderColor, RoundedCornerShape(12.dp)),
+        horizontalArrangement = Arrangement.SpaceEvenly
       ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-          Text("📜 भदोही ग्रामीण क्रिकेट - कड़े नियम", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = AmberHighlight)
-          Spacer(modifier = Modifier.height(6.dp))
-          Text("यह प्लेटफ़ॉर्म केवल प्रतियोगिता समन्वय के लिए है। किसी भी प्रकार के ऑनलाइन विवादों और वित्तीय धोखाधड़ी से मुक्त।", fontSize = 12.sp, color = White.copy(alpha = 0.9f))
-        }
-      }
-    }
-
-    // Safety and Misconduct Reporting Banner
-    item {
-      Card(
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2)),
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.fillMaxWidth().border(1.dp, Color(0xFFEF4444), RoundedCornerShape(12.dp))
-      ) {
-        Row(
-          modifier = Modifier.padding(12.dp),
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.SpaceBetween
+        Surface(
+          color = if (subTab == 0) DeepForest else Color.Transparent,
+          shape = RoundedCornerShape(8.dp),
+          modifier = Modifier
+            .weight(1f)
+            .clickable { subTab = 0 }
         ) {
-          Column(modifier = Modifier.weight(1f)) {
-            Text("🚨 खेल भावना व सुरक्षा रिपोर्ट", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color(0xFF991B1B))
-            Text("उम्र फर्जीवाड़ा या मैदान पर विवाद की गोपनीय शिकायत दर्ज करें।", fontSize = 10.sp, color = Color(0xFF7F1D1D))
+          Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(vertical = 8.dp)) {
+            Text(
+              "⚖️ कानूनी अस्वीकरण",
+              fontSize = 12.sp,
+              fontWeight = FontWeight.Bold,
+              color = if (subTab == 0) AmberHighlight else MainText
+            )
           }
-          Button(
-            onClick = { showReportDialog = true },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626)),
-            shape = RoundedCornerShape(8.dp),
-            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
-          ) {
-            Text("शिकायत करें", fontSize = 10.sp, color = White, fontWeight = FontWeight.Bold)
+        }
+        Surface(
+          color = if (subTab == 1) PrimaryGreen else Color.Transparent,
+          shape = RoundedCornerShape(8.dp),
+          modifier = Modifier
+            .weight(1f)
+            .clickable { subTab = 1 }
+        ) {
+          Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(vertical = 8.dp)) {
+            Text(
+              "📜 ग्रामीण नियम व रिपोर्ट",
+              fontSize = 12.sp,
+              fontWeight = FontWeight.Bold,
+              color = if (subTab == 1) White else MainText
+            )
           }
         }
       }
     }
 
-    val invariants = listOf(
-      "शून्य ऑनलाइन भुगतान: कोई UPI, वॉलेट या ऑनलाइन धन स्वीकार नहीं किया जाता।" to "💵",
-      "शून्य लाइव स्कोरिंग: गेंद-दर-गेंद स्कोरिंग नहीं होती। स्कोरिंग मैदान पर भौतिक रूप से होगी।" to "🏏",
-      "शून्य व्यक्तिगत आंकड़े / रैंकिंग: कोई रन, विकेट या स्ट्राइक रेट रैंकिंग नहीं रखी जाती।" to "🚫",
-      "100% मोबाइल नंबर गोपनीयता: फोन नंबर केवल लॉगिन के लिए है, कभी सार्वजनिक नहीं होता।" to "🔒",
-      "केवल 18+ वयस्क: 18 वर्ष से कम आयु का पंजीकरण प्रतिबंधित है।" to "🔞",
-      "शून्य SMS OTP: 6-अंकीय पिन और भौतिक रिकवरी पर्ची से खाता सुरक्षित रहता है।" to "🔑"
-    )
+    if (subTab == 0) {
+      // -------------------------------------------------------------
+      // SUB-TAB 0: LEGAL DISCLAIMERS & LIABILITY WAIVERS (कानूनी अस्वीकरण)
+      // -------------------------------------------------------------
+      item {
+        Card(
+          colors = CardDefaults.cardColors(containerColor = DeepForest),
+          shape = RoundedCornerShape(14.dp),
+          modifier = Modifier.fillMaxWidth()
+        ) {
+          Column(modifier = Modifier.padding(14.dp)) {
+            Text("⚖️ विधिक अस्वीकरण एवं दायित्व मुक्ति", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = AmberHighlight)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+              "भारतीय सूचना प्रौद्योगिकी अधिनियम (IT Act), पब्लिक गैंबलिंग एक्ट 1867 एवं खेल विधि के तहत पूर्ण विधिक सुरक्षा।",
+              fontSize = 11.sp,
+              color = White.copy(alpha = 0.9f)
+            )
+          }
+        }
+      }
 
-    items(invariants) { (rule, icon) ->
-      Card(
-        colors = CardDefaults.cardColors(containerColor = White),
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.fillMaxWidth().border(1.dp, BorderColor, RoundedCornerShape(12.dp))
-      ) {
-        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-          Text(icon, fontSize = 22.sp)
-          Spacer(modifier = Modifier.width(12.dp))
-          Text(rule, fontSize = 12.sp, color = MainText, lineHeight = 17.sp)
+      // Legal Card 1: Anti-Gambling & No Betting
+      item {
+        Card(
+          colors = CardDefaults.cardColors(containerColor = White),
+          shape = RoundedCornerShape(12.dp),
+          modifier = Modifier.fillMaxWidth().border(1.dp, Color(0xFFEF4444), RoundedCornerShape(12.dp))
+        ) {
+          Column(modifier = Modifier.padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Text("🚫", fontSize = 18.sp)
+              Spacer(modifier = Modifier.width(8.dp))
+              Text("सट्टेबाजी एवं जुआ पूर्णतः निषेध (Zero Gambling)", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFF991B1B))
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Surface(color = Color(0xFFFEE2E2), shape = RoundedCornerShape(6.dp)) {
+              Text(
+                "अधिनियम: उत्तर प्रदेश पब्लिक गैंबलिंग एक्ट, 1961 एवं IT Rules 2021",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFB91C1C),
+                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+              )
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+              "इस ऐप पर किसी भी प्रकार की सट्टेबाजी, सट्टा, जुआ, कैश दांव, मनी पूल या मैच-फिक्सिंग सख्त वर्जित है। ऐप केवल खेल समन्वय और सूचना हेतु है। मैदान पर कोई व्यक्ति अवैध सट्टेबाजी करता है तो वह स्वयं कानूनी और आपराधिक रूप से जिम्मेदार होगा।",
+              fontSize = 11.sp,
+              color = MainText,
+              lineHeight = 16.sp
+            )
+          }
+        }
+      }
+
+      // Legal Card 2: Sports Injury & Health Waiver
+      item {
+        Card(
+          colors = CardDefaults.cardColors(containerColor = White),
+          shape = RoundedCornerShape(12.dp),
+          modifier = Modifier.fillMaxWidth().border(1.dp, Color(0xFFF59E0B), RoundedCornerShape(12.dp))
+        ) {
+          Column(modifier = Modifier.padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Text("🏥", fontSize = 18.sp)
+              Spacer(modifier = Modifier.width(8.dp))
+              Text("शारीरिक चोट व स्वास्थ्य जोखिम (Volenti Non Fit Injuria)", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color(0xFF92400E))
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Surface(color = Color(0xFFFEF3C7), shape = RoundedCornerShape(6.dp)) {
+              Text(
+                "विधिक सिद्धांत: स्वेच्छा से खेल में भागीदारी (Sports Injury Waiver)",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFB45309),
+                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+              )
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+              "क्रिकेट एक जोखिम भरा खेल है। लेदर, भारी टेनिस या कॉस्को बॉल, बैट, शारीरिक टक्कर या मैदान की स्थिति से खिलाड़ी, दर्शक या अंपायर को लगने वाली किसी भी चोट, फ्रैक्चर, अस्पताल खर्च या अनहोनी के लिए यह ऐप, डेवलपर या संचालन समिति उत्तरदायी नहीं है। सभी खिलाड़ी स्वेच्छा से अपने स्वयं के जोखिम पर खेलते हैं।",
+              fontSize = 11.sp,
+              color = MainText,
+              lineHeight = 16.sp
+            )
+          }
+        }
+      }
+
+      // Legal Card 3: Zero Financial Liability
+      item {
+        Card(
+          colors = CardDefaults.cardColors(containerColor = White),
+          shape = RoundedCornerShape(12.dp),
+          modifier = Modifier.fillMaxWidth().border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+        ) {
+          Column(modifier = Modifier.padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Text("💰", fontSize = 18.sp)
+              Spacer(modifier = Modifier.width(8.dp))
+              Text("शून्य वित्तीय मध्यस्थता एवं नकद फीस अस्वीकरण", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = PrimaryGreen)
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+              "यह ऐप 100% निःशुल्क है। ऐप में कोई ऑनलाइन पेमेंट गेटवे, वॉलेट या UPI नहीं है। आयोजकों द्वारा ली जाने वाली कोई भी एंट्री फीस (उदा. ₹500 नकद) या घोषित इनाम राशि पूरी तरह से आयोजक और टीमों के बीच का निजी समझौता है। मैच रद्द होने पर फीस वापसी या इनाम भुगतान का ऐप कोई दायित्व नहीं लेता।",
+              fontSize = 11.sp,
+              color = MainText,
+              lineHeight = 16.sp
+            )
+          }
+        }
+      }
+
+      // Legal Card 4: Non-Affiliation
+      item {
+        Card(
+          colors = CardDefaults.cardColors(containerColor = White),
+          shape = RoundedCornerShape(12.dp),
+          modifier = Modifier.fillMaxWidth().border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+        ) {
+          Column(modifier = Modifier.padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Text("🏛️", fontSize = 18.sp)
+              Spacer(modifier = Modifier.width(8.dp))
+              Text("गैर-संबद्धता अस्वीकरण (Non-Affiliation Notice)", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = DeepForest)
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+              "यह प्लेटफ़ॉर्म भदोही जिले के ग्रामीण खेल प्रेमियों द्वारा संचालित एक स्वतंत्र पहल है। इसका भारतीय क्रिकेट नियंत्रण बोर्ड (BCCI), उत्तर प्रदेश क्रिकेट संघ (UPCA), ICC या किसी सरकारी खेल विभाग से कोई आधिकारिक संबंध नहीं है।",
+              fontSize = 11.sp,
+              color = MainText,
+              lineHeight = 16.sp
+            )
+          }
+        }
+      }
+
+      // Legal Card 5: Section 79 IT Act Intermediary
+      item {
+        Card(
+          colors = CardDefaults.cardColors(containerColor = White),
+          shape = RoundedCornerShape(12.dp),
+          modifier = Modifier.fillMaxWidth().border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+        ) {
+          Column(modifier = Modifier.padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Text("🛡️", fontSize = 18.sp)
+              Spacer(modifier = Modifier.width(8.dp))
+              Text("सूचना प्रौद्योगिकी अधिनियम धारा 79 (मध्यस्थ संरक्षण)", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = DeepForest)
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+              "यह मंच केवल डिजिटल सूचना पटल (Intermediary) के रूप में कार्य करता है। टूर्नामेंट की तिथियां, मैदान, संपर्क विवरण आयोजकों द्वारा दर्ज किए जाते हैं। ऐप किसी भी गलत सूचना या मैदान की अनुपलब्धता की गारंटी नहीं देता (AS IS / AS AVAILABLE)।",
+              fontSize = 11.sp,
+              color = MainText,
+              lineHeight = 16.sp
+            )
+          }
+        }
+      }
+
+      // Legal Card 6: 18+ Age Policy
+      item {
+        Card(
+          colors = CardDefaults.cardColors(containerColor = White),
+          shape = RoundedCornerShape(12.dp),
+          modifier = Modifier.fillMaxWidth().border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+        ) {
+          Column(modifier = Modifier.padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Text("🔞", fontSize = 18.sp)
+              Spacer(modifier = Modifier.width(8.dp))
+              Text("आयु सीमा एवं अभिभावक सहमति (18+ Policy)", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = DeepForest)
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+              "यह ऐप केवल 18 वर्ष या उससे अधिक आयु के वयस्कों के लिए है। यदि कोई नाबालिग खिलाड़ी स्थानीय मैच में भाग लेता है, तो यह केवल उसके माता-पिता या अभिभावक की प्रत्यक्ष अनुमति और जिम्मेदारी पर ही संभव है।",
+              fontSize = 11.sp,
+              color = MainText,
+              lineHeight = 16.sp
+            )
+          }
+        }
+      }
+
+      // Legal Card 7: Jurisdiction
+      item {
+        Card(
+          colors = CardDefaults.cardColors(containerColor = White),
+          shape = RoundedCornerShape(12.dp),
+          modifier = Modifier.fillMaxWidth().border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+        ) {
+          Column(modifier = Modifier.padding(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Text("📍", fontSize = 18.sp)
+              Spacer(modifier = Modifier.width(8.dp))
+              Text("लागू कानून एवं विधिक न्यायक्षेत्र (Jurisdiction)", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = DeepForest)
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+              "सभी विवाद और कानूनी विषय भारत गणराज्य के कानूनों के अधीन हैं और विशेष न्यायक्षेत्र न्यायालय भदोही (ज्ञानपुर) एवं माननीय उच्च न्यायालय इलाहाबाद होगा।",
+              fontSize = 11.sp,
+              color = MainText,
+              lineHeight = 16.sp
+            )
+          }
+        }
+      }
+
+      // Button: View Full Legal Document on GitHub
+      item {
+        OutlinedButton(
+          onClick = {
+            try {
+              val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/umbind/Bhadohi-Village-Cricket-Platform/blob/main/LEGAL_DISCLAIMER.md"))
+              context.startActivity(intent)
+            } catch (_: Exception) {
+              Toast.makeText(context, "दस्तावेज: LEGAL_DISCLAIMER.md", Toast.LENGTH_SHORT).show()
+            }
+          },
+          shape = RoundedCornerShape(10.dp),
+          modifier = Modifier.fillMaxWidth().height(44.dp)
+        ) {
+          Text("🌐 पूरा विधिक दस्तावेज GitHub पर पढ़ें (LEGAL_DISCLAIMER.md)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepForest)
+        }
+      }
+    } else {
+      // -------------------------------------------------------------
+      // SUB-TAB 1: GROUND RULES & SAFETY REPORTING (ग्रामीण नियम)
+      // -------------------------------------------------------------
+      item {
+        Card(
+          colors = CardDefaults.cardColors(containerColor = DeepForest),
+          shape = RoundedCornerShape(14.dp),
+          modifier = Modifier.fillMaxWidth()
+        ) {
+          Column(modifier = Modifier.padding(14.dp)) {
+            Text("📜 भदोही ग्रामीण क्रिकेट - सार्वभौमिक नियम", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = AmberHighlight)
+            Spacer(modifier = Modifier.height(6.dp))
+            Text("यह प्लेटफ़ॉर्म केवल प्रतियोगिता समन्वय के लिए है। किसी भी प्रकार के ऑनलाइन विवादों और वित्तीय धोखाधड़ी से मुक्त।", fontSize = 12.sp, color = White.copy(alpha = 0.9f))
+          }
+        }
+      }
+
+      // Safety and Misconduct Reporting Banner
+      item {
+        Card(
+          colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF2F2)),
+          shape = RoundedCornerShape(12.dp),
+          modifier = Modifier.fillMaxWidth().border(1.dp, Color(0xFFEF4444), RoundedCornerShape(12.dp))
+        ) {
+          Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+          ) {
+            Column(modifier = Modifier.weight(1f)) {
+              Text("🚨 खेल भावना व सुरक्षा रिपोर्ट", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color(0xFF991B1B))
+              Text("उम्र फर्जीवाड़ा या मैदान पर विवाद की गोपनीय शिकायत दर्ज करें।", fontSize = 10.sp, color = Color(0xFF7F1D1D))
+            }
+            Button(
+              onClick = { showReportDialog = true },
+              colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDC2626)),
+              shape = RoundedCornerShape(8.dp),
+              contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
+            ) {
+              Text("शिकायत करें", fontSize = 10.sp, color = White, fontWeight = FontWeight.Bold)
+            }
+          }
+        }
+      }
+
+      val invariants = listOf(
+        "शून्य ऑनलाइन भुगतान: कोई UPI, वॉलेट या ऑनलाइन धन स्वीकार नहीं किया जाता।" to "💵",
+        "शून्य लाइव स्कोरिंग: गेंद-दर-गेंद स्कोरिंग नहीं होती। स्कोरिंग मैदान पर भौतिक रूप से होगी।" to "🏏",
+        "शून्य व्यक्तिगत आंकड़े / रैंकिंग: कोई रन, विकेट या स्ट्राइक रेट रैंकिंग नहीं रखी जाती।" to "🚫",
+        "100% मोबाइल नंबर गोपनीयता: फोन नंबर केवल लॉगिन के लिए है, कभी सार्वजनिक नहीं होता।" to "🔒",
+        "केवल 18+ वयस्क: 18 वर्ष से कम आयु का पंजीकरण प्रतिबंधित है।" to "🔞",
+        "शून्य SMS OTP: 6-अंकीय पिन और भौतिक रिकवरी पर्ची से खाता सुरक्षित रहता है।" to "🔑"
+      )
+
+      items(invariants) { (rule, icon) ->
+        Card(
+          colors = CardDefaults.cardColors(containerColor = White),
+          shape = RoundedCornerShape(12.dp),
+          modifier = Modifier.fillMaxWidth().border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+        ) {
+          Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(icon, fontSize = 22.sp)
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(rule, fontSize = 12.sp, color = MainText, lineHeight = 17.sp)
+          }
         }
       }
     }
   }
+}
+
+// =========================================================================
+// 6. LEGAL DISCLAIMERS & LIABILITY WAIVER DIALOG
+// =========================================================================
+@Composable
+fun LegalDisclaimersDialog(onDismiss: () -> Unit) {
+  val context = LocalContext.current
+  AlertDialog(
+    onDismissRequest = onDismiss,
+    title = {
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        Text("⚖️", fontSize = 22.sp)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+          "विधिक अस्वीकरण एवं शर्तें",
+          fontSize = 16.sp,
+          fontWeight = FontWeight.Bold,
+          color = DeepForest
+        )
+      }
+    },
+    text = {
+      LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.fillMaxWidth()
+      ) {
+        item {
+          Surface(
+            color = Color(0xFFFEF2F2),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.fillMaxWidth().border(1.dp, Color(0xFFEF4444), RoundedCornerShape(8.dp))
+          ) {
+            Column(modifier = Modifier.padding(10.dp)) {
+              Text("🚫 सट्टेबाजी एवं जुआ पूर्णतः निषेध", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color(0xFF991B1B))
+              Spacer(modifier = Modifier.height(2.dp))
+              Text("उत्तर प्रदेश पब्लिक गैंबलिंग एक्ट 1961 के तहत इस ऐप पर किसी भी प्रकार का सट्टा, जुआ, कैश दांव या मैच-फिक्सिंग सख्त वर्जित है। ऐप केवल खेल समन्वय मंच है। मैदान पर कोई अवैध सट्टेबाजी करता है तो वह स्वयं कानूनी रूप से जिम्मेदार होगा।", fontSize = 10.sp, color = Color(0xFF7F1D1D), lineHeight = 14.sp)
+            }
+          }
+        }
+        item {
+          Surface(
+            color = Color(0xFFFFFBEB),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.fillMaxWidth().border(1.dp, Color(0xFFF59E0B), RoundedCornerShape(8.dp))
+          ) {
+            Column(modifier = Modifier.padding(10.dp)) {
+              Text("🏥 शारीरिक चोट व स्वास्थ्य जोखिम (Volenti Non Fit Injuria)", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color(0xFF92400E))
+              Spacer(modifier = Modifier.height(2.dp))
+              Text("क्रिकेट एक जोखिम भरा खेल है। लेदर, भारी टेनिस या कॉस्को बॉल, बैट, शारीरिक टक्कर या मैदान की स्थिति से खिलाड़ी, दर्शक या अंपायर को लगने वाली किसी भी चोट, फ्रैक्चर, अस्पताल खर्च या अनहोनी के लिए यह ऐप, डेवलपर या संचालन समिति उत्तरदायी नहीं है। सभी खिलाड़ी अपने स्वयं के जोखिम पर भाग लेते हैं।", fontSize = 10.sp, color = Color(0xFF78350F), lineHeight = 14.sp)
+            }
+          }
+        }
+        item {
+          Surface(
+            color = Color(0xFFF0FDF4),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.fillMaxWidth().border(1.dp, PrimaryGreen, RoundedCornerShape(8.dp))
+          ) {
+            Column(modifier = Modifier.padding(10.dp)) {
+              Text("💰 शून्य वित्तीय मध्यस्थता एवं नकद फीस", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Color(0xFF166534))
+              Spacer(modifier = Modifier.height(2.dp))
+              Text("यह ऐप 100% निःशुल्क है। ऐप में कोई ऑनलाइन भुगतान या वॉलेट नहीं है। आयोजकों द्वारा ली जाने वाली एंट्री फीस या घोषित इनाम राशि पूरी तरह से आयोजक और संबंधित टीमों के बीच का निजी समझौता है। मैच रद्द होने पर फीस वापसी या इनाम के भुगतान की गारंटी ऐप नहीं देता।", fontSize = 10.sp, color = Color(0xFF14532D), lineHeight = 14.sp)
+            }
+          }
+        }
+        item {
+          Surface(
+            color = Color(0xFFF8FAFC),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.fillMaxWidth().border(1.dp, BorderColor, RoundedCornerShape(8.dp))
+          ) {
+            Column(modifier = Modifier.padding(10.dp)) {
+              Text("🏛️ गैर-संबद्धता (Non-Affiliation Notice)", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MainText)
+              Spacer(modifier = Modifier.height(2.dp))
+              Text("यह भदोही जिले के ग्रामीण खिलाड़ियों का स्वतंत्र मंच है। इसका BCCI, UPCA, ICC या किसी सरकारी खेल विभाग से कोई आधिकारिक संबंध नहीं है।", fontSize = 10.sp, color = MutedText, lineHeight = 14.sp)
+            }
+          }
+        }
+        item {
+          Surface(
+            color = Color(0xFFF8FAFC),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.fillMaxWidth().border(1.dp, BorderColor, RoundedCornerShape(8.dp))
+          ) {
+            Column(modifier = Modifier.padding(10.dp)) {
+              Text("⚖️ सूचना प्रौद्योगिकी अधिनियम धारा 79 (मध्यस्थ दर्जा)", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MainText)
+              Spacer(modifier = Modifier.height(2.dp))
+              Text("यह मंच केवल डिजिटल सूचना पटल (Intermediary) है। टूर्नामेंट व मैच विवरण आयोजकों द्वारा दर्ज किया जाता है। ऐप किसी भी गलत सूचना या मैदान की अनुपलब्धता की गारंटी नहीं देता (AS IS)।", fontSize = 10.sp, color = MutedText, lineHeight = 14.sp)
+            }
+          }
+        }
+        item {
+          Surface(
+            color = Color(0xFFF8FAFC),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.fillMaxWidth().border(1.dp, BorderColor, RoundedCornerShape(8.dp))
+          ) {
+            Column(modifier = Modifier.padding(10.dp)) {
+              Text("📍 न्यायक्षेत्र एवं लागू कानून", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MainText)
+              Spacer(modifier = Modifier.height(2.dp))
+              Text("सभी विवाद और कानूनी मामले भारत गणराज्य के कानूनों के अधीन हैं और विशेष न्यायक्षेत्र न्यायालय भदोही (ज्ञानपुर) एवं उच्च न्यायालय इलाहाबाद होगा।", fontSize = 10.sp, color = MutedText, lineHeight = 14.sp)
+            }
+          }
+        }
+        item {
+          OutlinedButton(
+            onClick = {
+              try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/umbind/Bhadohi-Village-Cricket-Platform/blob/main/LEGAL_DISCLAIMER.md"))
+                context.startActivity(intent)
+              } catch (_: Exception) {}
+            },
+            modifier = Modifier.fillMaxWidth()
+          ) {
+            Text("🌐 पूरा विधिक दस्तावेज (GitHub पर देखें)", fontSize = 11.sp, color = DeepForest, fontWeight = FontWeight.Bold)
+          }
+        }
+      }
+    },
+    confirmButton = {
+      Button(
+        onClick = onDismiss,
+        colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)
+      ) {
+        Text("मैं सहमत हूँ", color = White, fontWeight = FontWeight.Bold)
+      }
+    }
+  )
 }
