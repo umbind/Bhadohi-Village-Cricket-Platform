@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.NavKey
@@ -50,151 +51,57 @@ fun MainScreen(
   var selectedTab by remember { mutableStateOf(0) }
   val context = LocalContext.current
 
+  // Purge any residual testing data from prior test sessions
+  LaunchedEffect(Unit) {
+    LocalDataManager.purgeTestingData(context)
+  }
+
   // 1. Load persistent user profile
   var registeredProfile by remember {
     mutableStateOf(LocalDataManager.loadProfile(context))
   }
 
-  // 2. Load persistent tournaments
+  // 2. Load persistent tournaments (Empty initially, only real user tournaments)
   val initialTournaments = remember {
-    val loaded = LocalDataManager.loadTournaments(context)
-    if (loaded.isNotEmpty()) loaded else {
-      val defaultList = listOf(
-        StoredTournament(
-          id = "1",
-          title = "खमरिया ग्रामीण क्रिकेट कप 2026",
-          organizerName = "खमरिया युवा स्पोर्ट्स क्लब (श्री संतोष सिंह)",
-          block = "ज्ञानपुर",
-          ground = "खमरिया इंटर कॉलेज मैदान",
-          dates = "15 से 20 नवंबर 2026",
-          maxTeams = 16,
-          entryNotice = "₹500 प्रति टीम - केवल मैदान पर नकद",
-          status = "पंजीकरण खुला",
-          ballType = "टेनिस बॉल (भारी)",
-          overs = 12,
-          organizerContact = "98XXXXXX21"
-        ),
-        StoredTournament(
-          id = "2",
-          title = "औराई नगर पंचायत प्रीमियर लीग",
-          organizerName = "औराई क्रिकेट एसोसिएशन (विकास यादव)",
-          block = "औराई",
-          ground = "औराई नगर पंचायत मैदान",
-          dates = "18 से 24 नवंबर 2026",
-          maxTeams = 8,
-          entryNotice = "₹400 प्रति टीम - केवल मैदान पर नकद",
-          status = "पंजीकरण खुला",
-          ballType = "कॉस्को बॉल (हल्की)",
-          overs = 10,
-          organizerContact = "98XXXXXX22"
-        ),
-        StoredTournament(
-          id = "3",
-          title = "सुरियावां ग्रामीण नॉकआउट कप",
-          organizerName = "सुरियावां ग्राम विकास समिति (मुकेश बिन्द)",
-          block = "सुरियावां",
-          ground = "सुरियावां स्टेशन रोड मैदान",
-          dates = "22 से 27 नवंबर 2026",
-          maxTeams = 8,
-          entryNotice = "₹350 प्रति टीम - केवल मैदान पर नकद",
-          status = "पंजीकरण खुला",
-          ballType = "लेदर बॉल (चमड़ा)",
-          overs = 12,
-          organizerContact = "98XXXXXX23"
-        )
-      )
-      LocalDataManager.saveTournaments(context, defaultList)
-      defaultList
-    }
+    LocalDataManager.loadTournaments(context)
   }
   val tournamentsList = remember { mutableStateListOf<StoredTournament>().apply { addAll(initialTournaments) } }
 
-  // 3. Load persistent teams
+  // 3. Load persistent teams (Empty initially, only real user teams)
   val initialTeams = remember {
-    val loaded = LocalDataManager.loadTeams(context)
-    if (loaded.isNotEmpty()) loaded else {
-      val defaultTeams = listOf(
-        StoredTeam(
-          id = "team-1",
-          teamName = "खमरिया टाइटन्स",
-          tournamentId = "1",
-          tournamentTitle = "खमरिया ग्रामीण क्रिकेट कप 2026",
-          village = "खमरिया",
-          block = "ज्ञानपुर",
-          captainName = "अमित सिंह",
-          status = "स्वीकृत (ACCEPTED)",
-          members = listOf(
-            StoredSquadMember("m1", "अमित सिंह", "कप्तान", "खमरिया", "98XXXXXX21"),
-            StoredSquadMember("m2", "रोहित बिन्द", "बल्लेबाज", "गोपीगंज", "98XXXXXX22"),
-            StoredSquadMember("m3", "विकास यादव", "ऑल-राउंडर", "खमरिया खास", "98XXXXXX23"),
-            StoredSquadMember("m4", "संजय पाल", "गेंदबाज", "ज्ञानपुर रोड", "98XXXXXX24"),
-            StoredSquadMember("m5", "अखिलेश मौर्य", "बल्लेबाज", "चकवा", "98XXXXXX25"),
-            StoredSquadMember("m6", "अनिल तिवारी", "गेंदबाज", "काशीपुर", "98XXXXXX26"),
-            StoredSquadMember("m7", "प्रदीप सरोज", "ऑल-राउंडर", "खमरिया", "98XXXXXX27"),
-            StoredSquadMember("m8", "सूरज गुप्ता", "बल्लेबाज", "गोपीगंज", "98XXXXXX28"),
-            StoredSquadMember("m9", "मुकेश बिन्द", "गेंदबाज", "रामपुर", "98XXXXXX29"),
-            StoredSquadMember("m10", "धर्मेन्द्र सिंह", "बल्लेबाज", "ज्ञानपुर", "98XXXXXX30"),
-            StoredSquadMember("m11", "संदीप दुबे", "गेंदबाज", "खमरिया", "98XXXXXX31")
-          )
-        ),
-        StoredTeam(
-          id = "team-2",
-          teamName = "औराई वॉरियर्स",
-          tournamentId = "2",
-          tournamentTitle = "औराई नगर पंचायत प्रीमियर लीग",
-          village = "औराई खास",
-          block = "औराई",
-          captainName = "दीपक यादव",
-          status = "गठन जारी (FORMING)",
-          members = listOf(
-            StoredSquadMember("m21", "दीपक यादव", "कप्तान", "औराई खास", "98XXXXXX23"),
-            StoredSquadMember("m22", "सुरेश पाल", "ऑल-राउंडर", "बाबूसराय", "98XXXXXX24"),
-            StoredSquadMember("m23", "विनोद मौर्य", "बल्लेबाज", "घोसी", "98XXXXXX32"),
-            StoredSquadMember("m24", "अशोक सिंह", "गेंदबाज", "औराई", "98XXXXXX33"),
-            StoredSquadMember("m25", "कमलेश बिन्द", "बल्लेबाज", "खमरिया", "98XXXXXX34")
-          )
-        )
-      )
-      LocalDataManager.saveTeams(context, defaultTeams)
-      defaultTeams
-    }
+    LocalDataManager.loadTeams(context)
   }
   val myTeamsList = remember { mutableStateListOf<StoredTeam>().apply { addAll(initialTeams) } }
 
-  // 4. Load persistent invitations
+  // 4. Load persistent invitations (Empty initially, only real invites)
   val initialInvitations = remember {
-    val loaded = LocalDataManager.loadInvitations(context)
-    if (loaded.isNotEmpty()) loaded else {
-      val defaultInvites = listOf(
-        StoredInvitation(
-          id = "inv-1",
-          teamName = "खमरिया टाइटन्स",
-          captainName = "अमित सिंह",
-          tournamentTitle = "खमरिया ग्रामीण क्रिकेट कप 2026",
-          ground = "खमरिया इंटर कॉलेज मैदान",
-          roleOffered = "ऑल-राउंडर",
-          status = "PENDING"
-        )
-      )
-      LocalDataManager.saveInvitations(context, defaultInvites)
-      defaultInvites
-    }
+    LocalDataManager.loadInvitations(context)
   }
   val invitationsList = remember { mutableStateListOf<StoredInvitation>().apply { addAll(initialInvitations) } }
 
-  // 5. Pre-seeded player scout directory
-  val playersList = remember {
-    mutableStateListOf(
-      PlayerItem("1", "अमित सिंह", "खमरिया", "ज्ञानपुर", "ऑल-राउंडर", "98XXXXXX21", "दाएं हाथ", "दाएं हाथ मध्यम गति"),
-      PlayerItem("2", "रोहित बिन्द", "गोपीगंज", "ज्ञानपुर", "बल्लेबाज", "98XXXXXX22", "बाएं हाथ", "ऑफ स्पिन"),
-      PlayerItem("3", "दीपक यादव", "औराई खास", "औराई", "गेंदबाज", "98XXXXXX23", "दाएं हाथ", "तेज गेंदबाज"),
-      PlayerItem("4", "सुरेश पाल", "बाबूसराय", "औराई", "ऑल-राउंडर", "98XXXXXX24", "दाएं हाथ", "मध्यम तेज"),
-      PlayerItem("5", "विकास मौर्य", "सुरियावां स्टेशन", "सुरियावां", "बल्लेबाज", "98XXXXXX25", "दाएं हाथ", "लेग स्पिन"),
-      PlayerItem("6", "पंकज तिवारी", "मिश्राइनपुर", "डीघ", "गेंदबाज", "98XXXXXX26", "बाएं हाथ", "बाएं हाथ तेज"),
-      PlayerItem("7", "राहुल बिन्द", "कोइरौना", "डीघ", "ऑल-राउंडर", "98XXXXXX27", "दाएं हाथ", "लेग कटर"),
-      PlayerItem("8", "सत्यम दुबे", "अभोली", "अभोली", "विकेट-कीपर", "98XXXXXX28", "दाएं हाथ", "विकेट-कीपर")
-    )
+  // 5. Player scout directory (Only real registered players)
+  val initialPlayers = remember {
+    val loaded = LocalDataManager.loadPlayers(context).map {
+      PlayerItem(it.id, it.name, it.village, it.block, it.role, it.maskedPhone, it.batting, it.bowling)
+    }.toMutableList()
+    if (registeredProfile != null && loaded.none { it.name == registeredProfile!!.fullName && it.village == registeredProfile!!.village }) {
+      loaded.add(
+        0,
+        PlayerItem(
+          id = "p-self",
+          name = registeredProfile!!.fullName,
+          village = registeredProfile!!.village,
+          block = registeredProfile!!.block,
+          role = registeredProfile!!.role,
+          maskedPhone = registeredProfile!!.maskedMobile,
+          batting = registeredProfile!!.battingStyle,
+          bowling = registeredProfile!!.bowlingStyle
+        )
+      )
+    }
+    loaded
   }
+  val playersList = remember { mutableStateListOf<PlayerItem>().apply { addAll(initialPlayers) } }
 
   // Pre-selected tournament when creating a team from Tournament view
   var preselectedTournamentId by remember { mutableStateOf<String?>(null) }
@@ -402,10 +309,19 @@ fun MainScreen(
             } else {
               playersList.add(0, newItem)
             }
+            LocalDataManager.savePlayers(
+              context,
+              playersList.map { StoredPlayerDirectoryItem(it.id, it.name, it.village, it.block, it.role, it.maskedPhone, it.batting, it.bowling) }
+            )
           },
           onProfileCleared = {
+            playersList.removeAll { it.name == registeredProfile?.fullName }
             registeredProfile = null
             LocalDataManager.clearProfile(context)
+            LocalDataManager.savePlayers(
+              context,
+              playersList.map { StoredPlayerDirectoryItem(it.id, it.name, it.village, it.block, it.role, it.maskedPhone, it.batting, it.bowling) }
+            )
           },
           onInvitationAction = { inviteId, isAccepted ->
             val idx = invitationsList.indexOfFirst { it.id == inviteId }
@@ -477,52 +393,10 @@ fun TournamentsView(
   var newEntryFee by remember { mutableStateOf("₹500 प्रति टीम - केवल मैदान पर नकद") }
   var tourFormError by remember { mutableStateOf<String?>(null) }
 
-  // Sample match fixtures for Bhadohi
-  val matchFixtures = remember {
-    listOf(
-      StoredMatchFixture(
-        id = "f-1",
-        tournamentTitle = "खमरिया ग्रामीण क्रिकेट कप 2026",
-        matchRound = "लीग मैच (पूल A)",
-        team1 = "खमरिया टाइटन्स",
-        team2 = "औराई वॉरियर्स",
-        date = "16 नवंबर 2026",
-        time = "सुबह 09:30 AM",
-        ground = "खमरिया इंटर कॉलेज मैदान",
-        groundLandmark = "निकट खमरिया डाकघर, ज्ञानपुर रोड",
-        overs = "12 ओवर्स",
-        ballType = "टेनिस बॉल",
-        pitchStatus = "☀️ पिच सूखी और तैयार है • टॉस ठीक 09:15 बजे होगा"
-      ),
-      StoredMatchFixture(
-        id = "f-2",
-        tournamentTitle = "सुरियावां ग्रामीण नॉकआउट कप",
-        matchRound = "पहला राउंड नॉकआउट",
-        team1 = "सुरियावां सुपर किंग्स",
-        team2 = "गोपीगंज स्ट्राइकर्स",
-        date = "22 नवंबर 2026",
-        time = "दोपहर 01:30 PM",
-        ground = "सुरियावां स्टेशन रोड मैदान",
-        groundLandmark = "रेलवे स्टेशन के पास, सुरियावां",
-        overs = "10 ओवर्स",
-        ballType = "टेनिस बॉल",
-        pitchStatus = "⛅ मौसम साफ रहने का अनुमान है • टीमें समय पर पहुंचें"
-      ),
-      StoredMatchFixture(
-        id = "f-3",
-        tournamentTitle = "औराई नगर पंचायत प्रीमियर लीग",
-        matchRound = "क्वार्टर फाइनल",
-        team1 = "बाबूसराय स्टार्स",
-        team2 = "डीघ पैंथर्स",
-        date = "24 नवंबर 2026",
-        time = "सुबह 10:00 AM",
-        ground = "औराई नगर पंचायत मैदान",
-        groundLandmark = "राष्ट्रीय राजमार्ग के पास, औराई",
-        overs = "12 ओवर्स",
-        ballType = "टेनिस बॉल",
-        pitchStatus = "☀️ सुबह की हल्की धूप • ग्राउंड पर पानी की व्यवस्था उपलब्ध"
-      )
-    )
+  // Persistent match fixtures (Clean start, empty initially)
+  val matchFixturesList = remember {
+    val loaded = LocalDataManager.loadFixtures(context)
+    mutableStateListOf<StoredMatchFixture>().apply { addAll(loaded) }
   }
 
   val filteredTournaments = if (selectedBlock == "सभी") tournaments else tournaments.filter { it.block == selectedBlock }
@@ -762,7 +636,7 @@ fun TournamentsView(
         ) {
           Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(vertical = 8.dp)) {
             Text(
-              "📅 मैच शेड्यूल व मैदान (${matchFixtures.size})",
+              "📅 मैच शेड्यूल व मैदान (${matchFixturesList.size})",
               fontSize = 12.sp,
               fontWeight = FontWeight.Bold,
               color = if (subTab == 1) White else MainText
@@ -863,7 +737,55 @@ fun TournamentsView(
         }
       }
 
-      items(filteredTournaments) { tour ->
+      if (filteredTournaments.isEmpty()) {
+        item {
+          Card(
+            colors = CardDefaults.cardColors(containerColor = White),
+            shape = RoundedCornerShape(14.dp),
+            modifier = Modifier
+              .fillMaxWidth()
+              .border(1.dp, BorderColor, RoundedCornerShape(14.dp))
+              .padding(vertical = 8.dp)
+          ) {
+            Column(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+              horizontalAlignment = Alignment.CenterHorizontally,
+              verticalArrangement = Arrangement.Center
+            ) {
+              Text("🏆", fontSize = 40.sp)
+              Spacer(modifier = Modifier.height(10.dp))
+              Text(
+                "अभी कोई टूर्नामेंट प्रकाशित नहीं हुआ है",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = MainText
+              )
+              Spacer(modifier = Modifier.height(6.dp))
+              Text(
+                if (selectedBlock == "सभी")
+                  "भदोही जिले में अभी कोई लाइव टूर्नामेंट दर्ज नहीं है। यदि आप खेल समिति या टूर्नामेंट आयोजक हैं, तो ऊपर दिए गए '+ नया टूर्नामेंट आयोजित करें' बटन से पहला ग्रामीण टूर्नामेंट जोड़ें।"
+                else
+                  "ब्लॉक '${selectedBlock}' में अभी कोई टूर्नामेंट उपलब्ध नहीं है। कृपया 'सभी' ब्लॉक चुनें या नया टूर्नामेंट जोड़ें।",
+                fontSize = 12.sp,
+                color = MutedText,
+                textAlign = TextAlign.Center,
+                lineHeight = 18.sp
+              )
+              Spacer(modifier = Modifier.height(14.dp))
+              Button(
+                onClick = { showCreateTournamentDialog = true },
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen),
+                shape = RoundedCornerShape(8.dp)
+              ) {
+                Text("+ नया टूर्नामेंट आयोजित करें", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = White)
+              }
+            }
+          }
+        }
+      } else {
+        items(filteredTournaments) { tour ->
         Card(
           colors = CardDefaults.cardColors(containerColor = White),
           shape = RoundedCornerShape(14.dp),
@@ -1009,6 +931,7 @@ fun TournamentsView(
           }
         }
       }
+      }
     } else {
       // -------------------------------------------------------------
       // SUB-TAB 1: MATCH SCHEDULES & GROUND FIXTURES
@@ -1030,7 +953,44 @@ fun TournamentsView(
         }
       }
 
-      items(matchFixtures) { fixture ->
+      if (matchFixturesList.isEmpty()) {
+        item {
+          Card(
+            colors = CardDefaults.cardColors(containerColor = White),
+            shape = RoundedCornerShape(14.dp),
+            modifier = Modifier
+              .fillMaxWidth()
+              .border(1.dp, BorderColor, RoundedCornerShape(14.dp))
+              .padding(vertical = 8.dp)
+          ) {
+            Column(
+              modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+              horizontalAlignment = Alignment.CenterHorizontally,
+              verticalArrangement = Arrangement.Center
+            ) {
+              Text("📅", fontSize = 40.sp)
+              Spacer(modifier = Modifier.height(10.dp))
+              Text(
+                "अभी कोई मैच शेड्यूल नहीं है",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = MainText
+              )
+              Spacer(modifier = Modifier.height(6.dp))
+              Text(
+                "जब टूर्नामेंट आयोजक आगामी मैचों की तारीख, समय और मैदान तय करेंगे, तो मैच शेड्यूल, टॉस समय और पिच रिपोर्ट यहाँ प्रदर्शित होगी।",
+                fontSize = 12.sp,
+                color = MutedText,
+                textAlign = TextAlign.Center,
+                lineHeight = 18.sp
+              )
+            }
+          }
+        }
+      } else {
+        items(matchFixturesList) { fixture ->
         Card(
           colors = CardDefaults.cardColors(containerColor = White),
           shape = RoundedCornerShape(14.dp),
@@ -1139,6 +1099,7 @@ fun TournamentsView(
             }
           }
         }
+      }
       }
     }
 
@@ -2477,7 +2438,32 @@ fun PlayersView(
       }
     }
 
-    if (filtered.isEmpty()) {
+    if (players.isEmpty()) {
+      item {
+        Card(
+          colors = CardDefaults.cardColors(containerColor = White),
+          shape = RoundedCornerShape(12.dp),
+          modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp).border(1.dp, BorderColor, RoundedCornerShape(12.dp))
+        ) {
+          Column(
+            modifier = Modifier.fillMaxWidth().padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+          ) {
+            Text("👥", fontSize = 36.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("अभी कोई पंजीकृत खिलाड़ी नहीं है", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MainText)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+              "खिलाड़ी अपने प्रोफ़ाइल टैब (👤) से पंजीकरण पूरा करेंगे, तब वे स्काउटिंग व टीम आमंत्रण के लिए यहाँ दिखाई देंगे।",
+              fontSize = 12.sp,
+              color = MutedText,
+              textAlign = TextAlign.Center,
+              lineHeight = 17.sp
+            )
+          }
+        }
+      }
+    } else if (filtered.isEmpty()) {
       item {
         Card(
           colors = CardDefaults.cardColors(containerColor = White),

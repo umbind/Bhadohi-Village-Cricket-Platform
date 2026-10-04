@@ -78,12 +78,50 @@ data class StoredInvitation(
   val status: String // "PENDING", "ACCEPTED", "DECLINED"
 )
 
+data class StoredPlayerDirectoryItem(
+  val id: String,
+  val name: String,
+  val village: String,
+  val block: String,
+  val role: String,
+  val maskedPhone: String,
+  val batting: String,
+  val bowling: String
+)
+
 object LocalDataManager {
   private const val PREFS_NAME = "bvcp_offline_data"
   private const val KEY_PROFILE = "user_profile"
   private const val KEY_TEAMS = "user_teams"
   private const val KEY_TOURNAMENTS = "tournaments_list"
   private const val KEY_INVITATIONS = "invitations_list"
+  private const val KEY_PLAYERS = "players_directory"
+  private const val KEY_FIXTURES = "match_fixtures"
+  private const val KEY_PURGED_TESTING = "purged_testing_data_v2"
+
+  val TEST_IDS = setOf("1", "2", "3", "team-1", "team-2", "inv-1", "f-1", "f-2", "f-3")
+
+  fun purgeTestingData(context: Context) {
+    val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    if (!prefs.getBoolean(KEY_PURGED_TESTING, false)) {
+      val tours = loadTournaments(context).filter { it.id !in TEST_IDS }
+      saveTournaments(context, tours)
+
+      val teams = loadTeams(context).filter { it.id !in TEST_IDS }
+      saveTeams(context, teams)
+
+      val invites = loadInvitations(context).filter { it.id !in TEST_IDS }
+      saveInvitations(context, invites)
+
+      val fixtures = loadFixtures(context).filter { it.id !in TEST_IDS }
+      saveFixtures(context, fixtures)
+
+      val players = loadPlayers(context).filter { it.id !in TEST_IDS && it.id !in listOf("1", "2", "3", "4", "5", "6", "7", "8") }
+      savePlayers(context, players)
+
+      prefs.edit().putBoolean(KEY_PURGED_TESTING, true).apply()
+    }
+  }
 
   fun saveProfile(context: Context, profile: StoredPlayerProfile) {
     val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -171,6 +209,8 @@ object LocalDataManager {
       val array = JSONArray(raw)
       for (i in 0 until array.length()) {
         val obj = array.getJSONObject(i)
+        val id = obj.getString("id")
+        if (id in TEST_IDS) continue
         val membersList = mutableListOf<StoredSquadMember>()
         val membersArr = obj.optJSONArray("members")
         if (membersArr != null) {
@@ -189,7 +229,7 @@ object LocalDataManager {
         }
         list.add(
           StoredTeam(
-            id = obj.getString("id"),
+            id = id,
             teamName = obj.getString("teamName"),
             tournamentId = obj.getString("tournamentId"),
             tournamentTitle = obj.getString("tournamentTitle"),
@@ -236,9 +276,11 @@ object LocalDataManager {
       val array = JSONArray(raw)
       for (i in 0 until array.length()) {
         val obj = array.getJSONObject(i)
+        val id = obj.getString("id")
+        if (id in TEST_IDS) continue
         list.add(
           StoredTournament(
-            id = obj.getString("id"),
+            id = id,
             title = obj.getString("title"),
             organizerName = obj.optString("organizerName", "स्थानीय खेल समिति"),
             block = obj.getString("block"),
@@ -283,15 +325,117 @@ object LocalDataManager {
       val array = JSONArray(raw)
       for (i in 0 until array.length()) {
         val obj = array.getJSONObject(i)
+        val id = obj.getString("id")
+        if (id in TEST_IDS) continue
         list.add(
           StoredInvitation(
-            id = obj.getString("id"),
+            id = id,
             teamName = obj.getString("teamName"),
             captainName = obj.getString("captainName"),
             tournamentTitle = obj.getString("tournamentTitle"),
             ground = obj.getString("ground"),
             roleOffered = obj.getString("roleOffered"),
             status = obj.optString("status", "PENDING")
+          )
+        )
+      }
+    } catch (_: Exception) {}
+    return list
+  }
+
+  fun saveFixtures(context: Context, fixtures: List<StoredMatchFixture>) {
+    val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    val array = JSONArray()
+    for (f in fixtures) {
+      val obj = JSONObject().apply {
+        put("id", f.id)
+        put("tournamentTitle", f.tournamentTitle)
+        put("matchRound", f.matchRound)
+        put("team1", f.team1)
+        put("team2", f.team2)
+        put("date", f.date)
+        put("time", f.time)
+        put("ground", f.ground)
+        put("groundLandmark", f.groundLandmark)
+        put("overs", f.overs)
+        put("ballType", f.ballType)
+        put("pitchStatus", f.pitchStatus)
+      }
+      array.put(obj)
+    }
+    prefs.edit().putString(KEY_FIXTURES, array.toString()).apply()
+  }
+
+  fun loadFixtures(context: Context): List<StoredMatchFixture> {
+    val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    val raw = prefs.getString(KEY_FIXTURES, null) ?: return emptyList()
+    val list = mutableListOf<StoredMatchFixture>()
+    try {
+      val array = JSONArray(raw)
+      for (i in 0 until array.length()) {
+        val obj = array.getJSONObject(i)
+        val id = obj.getString("id")
+        if (id in TEST_IDS) continue
+        list.add(
+          StoredMatchFixture(
+            id = id,
+            tournamentTitle = obj.getString("tournamentTitle"),
+            matchRound = obj.getString("matchRound"),
+            team1 = obj.getString("team1"),
+            team2 = obj.getString("team2"),
+            date = obj.getString("date"),
+            time = obj.getString("time"),
+            ground = obj.getString("ground"),
+            groundLandmark = obj.optString("groundLandmark", "ज्ञानपुर-औराई मार्ग, भदोही"),
+            overs = obj.optString("overs", "12 ओवर्स"),
+            ballType = obj.optString("ballType", "टेनिस बॉल"),
+            pitchStatus = obj.optString("pitchStatus", "☀️ पिच सूखी है • समय पर टॉस होगा")
+          )
+        )
+      }
+    } catch (_: Exception) {}
+    return list
+  }
+
+  fun savePlayers(context: Context, players: List<StoredPlayerDirectoryItem>) {
+    val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    val array = JSONArray()
+    for (p in players) {
+      val obj = JSONObject().apply {
+        put("id", p.id)
+        put("name", p.name)
+        put("village", p.village)
+        put("block", p.block)
+        put("role", p.role)
+        put("maskedPhone", p.maskedPhone)
+        put("batting", p.batting)
+        put("bowling", p.bowling)
+      }
+      array.put(obj)
+    }
+    prefs.edit().putString(KEY_PLAYERS, array.toString()).apply()
+  }
+
+  fun loadPlayers(context: Context): List<StoredPlayerDirectoryItem> {
+    val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    val raw = prefs.getString(KEY_PLAYERS, null) ?: return emptyList()
+    val list = mutableListOf<StoredPlayerDirectoryItem>()
+    try {
+      val array = JSONArray(raw)
+      for (i in 0 until array.length()) {
+        val obj = array.getJSONObject(i)
+        val id = obj.getString("id")
+        if (id in TEST_IDS || id in listOf("1", "2", "3", "4", "5", "6", "7", "8")) continue
+        list.add(
+          StoredPlayerDirectoryItem(
+            id = id,
+            name = obj.getString("name"),
+            village = obj.getString("village"),
+            block = obj.getString("block"),
+            role = obj.getString("role"),
+            maskedPhone = obj.getString("maskedPhone"),
+            batting = obj.optString("batting", "दाएं हाथ"),
+            bowling = obj.optString("bowling", "मध्यम गति")
           )
         )
       }
