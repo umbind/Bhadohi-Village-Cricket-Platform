@@ -200,13 +200,23 @@ fun MainScreen(
   var preselectedTournamentId by remember { mutableStateOf<String?>(null) }
   var triggerCreateTeamDialog by remember { mutableStateOf(false) }
 
-  val tabs = listOf("टूर्नामेंट्स", "मेरी टीमें", "खिलाड़ी पंजीकरण", "खिलाड़ी खोज", "नियम")
+  val tabs = listOf("होम", "मेरी टीमें", "खिलाड़ी पंजीकरण", "खिलाड़ी खोज", "नियम")
 
   Scaffold(
     topBar = {
       TopAppBar(
+        navigationIcon = {
+          if (selectedTab != 0) {
+            IconButton(onClick = { selectedTab = 0 }) {
+              Text("←", fontSize = 22.sp, color = White, fontWeight = FontWeight.Bold)
+            }
+          }
+        },
         title = {
-          Row(verticalAlignment = Alignment.CenterVertically) {
+          Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { selectedTab = 0 }
+          ) {
             Box(
               modifier = Modifier
                 .size(38.dp)
@@ -231,6 +241,30 @@ fun MainScreen(
             }
           }
         },
+        actions = {
+          // Dedicated Home Button in Top Bar
+          Surface(
+            color = if (selectedTab == 0) AmberHighlight else PrimaryGreen,
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier
+              .padding(end = 12.dp)
+              .clickable { selectedTab = 0 }
+          ) {
+            Row(
+              modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+              verticalAlignment = Alignment.CenterVertically
+            ) {
+              Text("🏠", fontSize = 14.sp)
+              Spacer(modifier = Modifier.width(4.dp))
+              Text(
+                "होम",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (selectedTab == 0) DeepForest else White
+              )
+            }
+          }
+        },
         colors = TopAppBarDefaults.topAppBarColors(
           containerColor = DeepForest,
           titleContentColor = White
@@ -250,7 +284,7 @@ fun MainScreen(
             icon = {
               Text(
                 when (index) {
-                  0 -> "🏆"
+                  0 -> "🏠" // Home icon
                   1 -> "🛡️"
                   2 -> "👤"
                   3 -> "👥"
