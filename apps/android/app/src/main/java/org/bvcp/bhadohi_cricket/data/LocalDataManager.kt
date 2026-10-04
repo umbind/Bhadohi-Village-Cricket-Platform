@@ -7,6 +7,7 @@ import org.json.JSONObject
 data class StoredTournament(
   val id: String,
   val title: String,
+  val organizerName: String = "स्थानीय खेल समिति",
   val block: String,
   val ground: String,
   val dates: String,
@@ -211,6 +212,7 @@ object LocalDataManager {
       val obj = JSONObject().apply {
         put("id", t.id)
         put("title", t.title)
+        put("organizerName", t.organizerName)
         put("block", t.block)
         put("ground", t.ground)
         put("dates", t.dates)
@@ -238,6 +240,7 @@ object LocalDataManager {
           StoredTournament(
             id = obj.getString("id"),
             title = obj.getString("title"),
+            organizerName = obj.optString("organizerName", "स्थानीय खेल समिति"),
             block = obj.getString("block"),
             ground = obj.getString("ground"),
             dates = obj.getString("dates"),

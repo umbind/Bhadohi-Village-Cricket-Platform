@@ -63,6 +63,7 @@ fun MainScreen(
         StoredTournament(
           id = "1",
           title = "खमरिया ग्रामीण क्रिकेट कप 2026",
+          organizerName = "खमरिया युवा स्पोर्ट्स क्लब (श्री संतोष सिंह)",
           block = "ज्ञानपुर",
           ground = "खमरिया इंटर कॉलेज मैदान",
           dates = "15 से 20 नवंबर 2026",
@@ -76,6 +77,7 @@ fun MainScreen(
         StoredTournament(
           id = "2",
           title = "औराई नगर पंचायत प्रीमियर लीग",
+          organizerName = "औराई क्रिकेट एसोसिएशन (विकास यादव)",
           block = "औराई",
           ground = "औराई नगर पंचायत मैदान",
           dates = "18 से 24 नवंबर 2026",
@@ -89,6 +91,7 @@ fun MainScreen(
         StoredTournament(
           id = "3",
           title = "सुरियावां ग्रामीण नॉकआउट कप",
+          organizerName = "सुरियावां ग्राम विकास समिति (मुकेश बिन्द)",
           block = "सुरियावां",
           ground = "सुरियावां स्टेशन रोड मैदान",
           dates = "22 से 27 नवंबर 2026",
@@ -399,6 +402,7 @@ fun TournamentsView(
 
   // Create Tournament Form State
   var newTitle by remember { mutableStateOf("") }
+  var newOrganizerName by remember { mutableStateOf("") }
   var newBlock by remember { mutableStateOf("ज्ञानपुर") }
   var newGround by remember { mutableStateOf("") }
   var newDates by remember { mutableStateOf("") }
@@ -492,6 +496,16 @@ fun TournamentsView(
             )
           }
           item {
+            OutlinedTextField(
+              value = newOrganizerName,
+              onValueChange = { newOrganizerName = it },
+              label = { Text("आयोजक व्यक्ति या क्लब का नाम") },
+              placeholder = { Text("उदा. खमरिया युवा स्पोर्ट्स क्लब / राहुल बिन्द") },
+              modifier = Modifier.fillMaxWidth(),
+              singleLine = true
+            )
+          }
+          item {
             Text("ब्लॉक का चयन:", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MainText)
             LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
               items(blocks.filter { it != "सभी" }) { b ->
@@ -574,6 +588,10 @@ fun TournamentsView(
               tourFormError = "कृपया प्रतियोगिता का सही नाम दर्ज करें।"
               return@Button
             }
+            if (newOrganizerName.trim().length < 3) {
+              tourFormError = "कृपया आयोजक व्यक्ति या क्लब का नाम दर्ज करें।"
+              return@Button
+            }
             if (newGround.trim().length < 3) {
               tourFormError = "कृपया खेल मैदान का नाम दर्ज करें।"
               return@Button
@@ -588,6 +606,7 @@ fun TournamentsView(
             val created = StoredTournament(
               id = "tour-${System.currentTimeMillis()}",
               title = newTitle.trim(),
+              organizerName = newOrganizerName.trim(),
               block = newBlock,
               ground = newGround.trim(),
               dates = newDates.trim(),
@@ -601,6 +620,7 @@ fun TournamentsView(
             onTournamentAdded(created)
             showCreateTournamentDialog = false
             newTitle = ""
+            newOrganizerName = ""
             newGround = ""
             newDates = ""
           },
@@ -799,6 +819,26 @@ fun TournamentsView(
             Spacer(modifier = Modifier.height(8.dp))
             Text(tour.title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MainText)
 
+            Spacer(modifier = Modifier.height(4.dp))
+            Surface(
+              color = Color(0xFFFEF3C7),
+              shape = RoundedCornerShape(6.dp)
+            ) {
+              Row(
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                verticalAlignment = Alignment.CenterVertically
+              ) {
+                Text("👑", fontSize = 11.sp)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                  "आयोजक: ${tour.organizerName}",
+                  fontSize = 11.sp,
+                  fontWeight = FontWeight.Bold,
+                  color = Color(0xFF92400E)
+                )
+              }
+            }
+
             Spacer(modifier = Modifier.height(6.dp))
             Column(
               modifier = Modifier
@@ -807,6 +847,7 @@ fun TournamentsView(
                 .padding(8.dp),
               verticalArrangement = Arrangement.spacedBy(3.dp)
             ) {
+              Text("👑 आयोजक / क्लब: ${tour.organizerName}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepForest)
               Text("🏟️ मैदान: ${tour.ground}", fontSize = 11.sp, color = MainText)
               Text("🏏 फॉर्मेट: ${tour.overs} ओवर्स • ${tour.ballType}", fontSize = 11.sp, color = MainText)
               Text("👥 टीम सीमा: ${tour.maxTeams} टीमें", fontSize = 11.sp, color = MainText)
@@ -851,7 +892,7 @@ fun TournamentsView(
                 onClick = {
                   val shareIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, "🏏 *${tour.title}*\nस्थान: ${tour.ground}\nब्लॉक: ${tour.block}\nप्रारूप: ${tour.overs} ओवर्स (${tour.ballType})\nशुल्क: ${tour.entryNotice}\n\nभदोही ग्रामीण क्रिकेट प्लेटफ़ॉर्म पर देखें!")
+                    putExtra(Intent.EXTRA_TEXT, "🏏 *${tour.title}*\n👑 आयोजक: ${tour.organizerName}\nस्थान: ${tour.ground}\nब्लॉक: ${tour.block}\nप्रारूप: ${tour.overs} ओवर्स (${tour.ballType})\nशुल्क: ${tour.entryNotice}\n\nभदोही ग्रामीण क्रिकेट प्लेटफ़ॉर्म पर देखें!")
                   }
                   context.startActivity(Intent.createChooser(shareIntent, "WhatsApp पर साझा करें"))
                 },
