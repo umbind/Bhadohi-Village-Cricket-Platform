@@ -70,7 +70,7 @@ fun MainScreen(
           maxTeams = 16,
           entryNotice = "₹500 प्रति टीम - केवल मैदान पर नकद",
           status = "पंजीकरण खुला",
-          ballType = "टेनिस बॉल",
+          ballType = "टेनिस बॉल (भारी)",
           overs = 12,
           organizerContact = "98XXXXXX21"
         ),
@@ -84,7 +84,7 @@ fun MainScreen(
           maxTeams = 8,
           entryNotice = "₹400 प्रति टीम - केवल मैदान पर नकद",
           status = "पंजीकरण खुला",
-          ballType = "टेनिस बॉल",
+          ballType = "कॉस्को बॉल (हल्की)",
           overs = 10,
           organizerContact = "98XXXXXX22"
         ),
@@ -98,7 +98,7 @@ fun MainScreen(
           maxTeams = 8,
           entryNotice = "₹350 प्रति टीम - केवल मैदान पर नकद",
           status = "पंजीकरण खुला",
-          ballType = "टेनिस बॉल",
+          ballType = "लेदर बॉल (चमड़ा)",
           overs = 12,
           organizerContact = "98XXXXXX23"
         )
@@ -406,7 +406,8 @@ fun TournamentsView(
   var newBlock by remember { mutableStateOf("ज्ञानपुर") }
   var newGround by remember { mutableStateOf("") }
   var newDates by remember { mutableStateOf("") }
-  var newBallType by remember { mutableStateOf("टेनिस बॉल") }
+  val ballTypes = listOf("टेनिस बॉल (भारी)", "कॉस्को बॉल (हल्की)", "लेदर बॉल (चमड़ा)", "टेप / विंडर बॉल")
+  var newBallType by remember { mutableStateOf(ballTypes[0]) }
   var newOvers by remember { mutableStateOf("12") }
   var newMaxTeams by remember { mutableStateOf("16") }
   var newEntryFee by remember { mutableStateOf("₹500 प्रति टीम - केवल मैदान पर नकद") }
@@ -560,6 +561,25 @@ fun TournamentsView(
             }
           }
           item {
+            Text("⚾ गेंद का प्रकार (Ball Type):", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MainText)
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+              items(ballTypes) { ball ->
+                val isSel = newBallType == ball
+                FilterChip(
+                  selected = isSel,
+                  onClick = { newBallType = ball },
+                  label = { Text(ball, fontSize = 10.sp) },
+                  colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = PrimaryGreen,
+                    selectedLabelColor = White,
+                    containerColor = CreamBackground,
+                    labelColor = MainText
+                  )
+                )
+              }
+            }
+          }
+          item {
             OutlinedTextField(
               value = newEntryFee,
               onValueChange = { newEntryFee = it },
@@ -623,6 +643,7 @@ fun TournamentsView(
             newOrganizerName = ""
             newGround = ""
             newDates = ""
+            newBallType = ballTypes[0]
           },
           colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen)
         ) {
@@ -790,17 +811,34 @@ fun TournamentsView(
               horizontalArrangement = Arrangement.SpaceBetween,
               verticalAlignment = Alignment.CenterVertically
             ) {
-              Surface(
-                color = PrimaryGreen.copy(alpha = 0.15f),
-                shape = RoundedCornerShape(6.dp)
+              Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
               ) {
-                Text(
-                  "📍 ब्लॉक: ${tour.block}",
-                  fontSize = 11.sp,
-                  fontWeight = FontWeight.Bold,
-                  color = PrimaryGreen,
-                  modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
-                )
+                Surface(
+                  color = PrimaryGreen.copy(alpha = 0.15f),
+                  shape = RoundedCornerShape(6.dp)
+                ) {
+                  Text(
+                    "📍 ब्लॉक: ${tour.block}",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = PrimaryGreen,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                  )
+                }
+                Surface(
+                  color = Color(0xFFEFF6FF),
+                  shape = RoundedCornerShape(6.dp)
+                ) {
+                  Text(
+                    "⚾ ${tour.ballType}",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1D4ED8),
+                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
+                  )
+                }
               }
               Surface(
                 color = Color(0xFFD1FAE5),
@@ -849,7 +887,8 @@ fun TournamentsView(
             ) {
               Text("👑 आयोजक / क्लब: ${tour.organizerName}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepForest)
               Text("🏟️ मैदान: ${tour.ground}", fontSize = 11.sp, color = MainText)
-              Text("🏏 फॉर्मेट: ${tour.overs} ओवर्स • ${tour.ballType}", fontSize = 11.sp, color = MainText)
+              Text("⚾ गेंद (Ball): ${tour.ballType}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1D4ED8))
+              Text("🏏 फॉर्मेट: ${tour.overs} ओवर्स", fontSize = 11.sp, color = MainText)
               Text("👥 टीम सीमा: ${tour.maxTeams} टीमें", fontSize = 11.sp, color = MainText)
               Text("💵 शुल्क सूचना: ${tour.entryNotice}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFFB45309))
               Text("📅 अवधि: ${tour.dates}", fontSize = 11.sp, color = MutedText)
@@ -892,7 +931,7 @@ fun TournamentsView(
                 onClick = {
                   val shareIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, "🏏 *${tour.title}*\n👑 आयोजक: ${tour.organizerName}\nस्थान: ${tour.ground}\nब्लॉक: ${tour.block}\nप्रारूप: ${tour.overs} ओवर्स (${tour.ballType})\nशुल्क: ${tour.entryNotice}\n\nभदोही ग्रामीण क्रिकेट प्लेटफ़ॉर्म पर देखें!")
+                    putExtra(Intent.EXTRA_TEXT, "🏏 *${tour.title}*\n👑 आयोजक: ${tour.organizerName}\n⚾ गेंद (Ball): ${tour.ballType}\n🏟️ स्थान: ${tour.ground}\n📍 ब्लॉक: ${tour.block}\n🏏 प्रारूप: ${tour.overs} ओवर्स\n💵 शुल्क: ${tour.entryNotice}\n\nभदोही ग्रामीण क्रिकेट प्लेटफ़ॉर्म पर देखें!")
                   }
                   context.startActivity(Intent.createChooser(shareIntent, "WhatsApp पर साझा करें"))
                 },
