@@ -19,6 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -128,7 +129,10 @@ fun MainScreen(
             Box(
               modifier = Modifier
                 .size(38.dp)
-                .background(PrimaryGreen, RoundedCornerShape(10.dp)),
+                .background(
+                  Brush.linearGradient(listOf(RoyalPink, RoyalViolet)),
+                  RoundedCornerShape(10.dp)
+                ),
               contentAlignment = Alignment.Center
             ) {
               Text("🏏", fontSize = 20.sp)
@@ -144,7 +148,7 @@ fun MainScreen(
               Text(
                 "जिला भदोही (संत रविदास नगर) • 18+ केवल",
                 fontSize = 11.sp,
-                color = AmberHighlight
+                color = RoyalGold
               )
             }
           }
@@ -152,8 +156,9 @@ fun MainScreen(
         actions = {
           // Dedicated Legal Disclaimers Button in Top Bar
           Surface(
-            color = Color(0xFF1E3A8A).copy(alpha = 0.85f),
+            color = RoyalViolet.copy(alpha = 0.45f),
             shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(1.dp, RoyalViolet.copy(alpha = 0.8f)),
             modifier = Modifier
               .padding(end = 6.dp)
               .clickable { showLegalDialog = true }
@@ -175,7 +180,7 @@ fun MainScreen(
 
           // Dedicated Home Button in Top Bar
           Surface(
-            color = if (selectedTab == 0) AmberHighlight else PrimaryGreen,
+            color = if (selectedTab == 0) RoyalPink else RoyalViolet,
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
               .padding(end = 12.dp)
@@ -191,20 +196,20 @@ fun MainScreen(
                 "होम",
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
-                color = if (selectedTab == 0) DeepForest else White
+                color = White
               )
             }
           }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-          containerColor = DeepForest,
+          containerColor = RoyalMidnight,
           titleContentColor = White
         )
       )
     },
     bottomBar = {
       NavigationBar(
-        containerColor = DeepForest,
+        containerColor = RoyalMidnight,
         contentColor = White
       ) {
         tabs.forEachIndexed { index, label ->
@@ -229,12 +234,12 @@ fun MainScreen(
                 label,
                 fontSize = 9.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                color = if (isSelected) AmberHighlight else White.copy(alpha = 0.7f),
+                color = if (isSelected) RoyalPink else White.copy(alpha = 0.7f),
                 maxLines = 1
               )
             },
             colors = NavigationBarItemDefaults.colors(
-              indicatorColor = PrimaryGreen,
+              indicatorColor = RoyalViolet,
               selectedIconColor = White,
               unselectedIconColor = White.copy(alpha = 0.6f)
             )
@@ -612,7 +617,7 @@ fun TournamentsView(
         horizontalArrangement = Arrangement.SpaceEvenly
       ) {
         Surface(
-          color = if (subTab == 0) PrimaryGreen else Color.Transparent,
+          color = if (subTab == 0) RoyalViolet else Color.Transparent,
           shape = RoundedCornerShape(8.dp),
           modifier = Modifier
             .weight(1f)
@@ -628,7 +633,7 @@ fun TournamentsView(
           }
         }
         Surface(
-          color = if (subTab == 1) PrimaryGreen else Color.Transparent,
+          color = if (subTab == 1) RoyalPink else Color.Transparent,
           shape = RoundedCornerShape(8.dp),
           modifier = Modifier
             .weight(1f)
@@ -652,24 +657,25 @@ fun TournamentsView(
       // -------------------------------------------------------------
       item {
         Card(
-          colors = CardDefaults.cardColors(containerColor = DeepForest),
-          shape = RoundedCornerShape(12.dp),
+          colors = CardDefaults.cardColors(containerColor = RoyalMidnightCard),
+          shape = RoundedCornerShape(14.dp),
+          border = BorderStroke(1.dp, RoyalViolet.copy(alpha = 0.5f)),
           modifier = Modifier.fillMaxWidth().clickable { onNavigateToRegister() }
         ) {
           Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
           ) {
             Column(modifier = Modifier.weight(1f)) {
-              Text("👤 क्या आप नए खिलाड़ी हैं?", fontWeight = FontWeight.Bold, color = AmberHighlight, fontSize = 13.sp)
-              Text("अपना प्रोफाइल बनाएं व 15 दिन उपलब्धता दर्ज करें →", color = White, fontSize = 11.sp)
+              Text("👤 क्या आप नए खिलाड़ी हैं?", fontWeight = FontWeight.Bold, color = RoyalGold, fontSize = 13.sp)
+              Text("अपना प्रोफाइल बनाएं व 15 दिन उपलब्धता दर्ज करें →", color = White.copy(alpha = 0.85f), fontSize = 11.sp)
             }
             Surface(
-              color = PrimaryGreen,
+              color = RoyalPink,
               shape = RoundedCornerShape(8.dp)
             ) {
-              Text("पंजीकरण करें", color = White, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp))
+              Text("पंजीकरण करें", color = White, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
             }
           }
         }
@@ -803,39 +809,39 @@ fun TournamentsView(
                 verticalAlignment = Alignment.CenterVertically
               ) {
                 Surface(
-                  color = PrimaryGreen.copy(alpha = 0.15f),
+                  color = RoyalVioletLight,
                   shape = RoundedCornerShape(6.dp)
                 ) {
                   Text(
                     "📍 ब्लॉक: ${tour.block}",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PrimaryGreen,
+                    color = RoyalVioletDark,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                   )
                 }
                 Surface(
-                  color = Color(0xFFEFF6FF),
+                  color = RoyalPinkLight,
                   shape = RoundedCornerShape(6.dp)
                 ) {
                   Text(
                     "⚾ ${tour.ballType}",
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1D4ED8),
+                    color = RoyalPinkDark,
                     modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
                   )
                 }
               }
               Surface(
-                color = Color(0xFFD1FAE5),
+                color = PitchGreenLight,
                 shape = RoundedCornerShape(12.dp)
               ) {
                 Text(
                   tour.status,
                   fontSize = 10.sp,
                   fontWeight = FontWeight.Bold,
-                  color = Color(0xFF065F46),
+                  color = PitchGreenDark,
                   modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                 )
               }
@@ -846,7 +852,7 @@ fun TournamentsView(
 
             Spacer(modifier = Modifier.height(4.dp))
             Surface(
-              color = Color(0xFFFEF3C7),
+              color = RoyalGoldLight,
               shape = RoundedCornerShape(6.dp)
             ) {
               Row(
@@ -859,7 +865,7 @@ fun TournamentsView(
                   "आयोजक: ${tour.organizerName}",
                   fontSize = 11.sp,
                   fontWeight = FontWeight.Bold,
-                  color = Color(0xFF92400E)
+                  color = RoyalGoldDark
                 )
               }
             }
@@ -868,16 +874,16 @@ fun TournamentsView(
             Column(
               modifier = Modifier
                 .fillMaxWidth()
-                .background(CreamBackground, RoundedCornerShape(8.dp))
+                .background(CanvasBackground, RoundedCornerShape(8.dp))
                 .padding(8.dp),
               verticalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-              Text("👑 आयोजक / क्लब: ${tour.organizerName}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepForest)
+              Text("👑 आयोजक / क्लब: ${tour.organizerName}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = RoyalVioletDark)
               Text("🏟️ मैदान: ${tour.ground}", fontSize = 11.sp, color = MainText)
-              Text("⚾ गेंद (Ball): ${tour.ballType}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1D4ED8))
+              Text("⚾ गेंद (Ball): ${tour.ballType}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = RoyalPinkDark)
               Text("🏏 फॉर्मेट: ${tour.overs} ओवर्स", fontSize = 11.sp, color = MainText)
               Text("👥 टीम सीमा: ${tour.maxTeams} टीमें", fontSize = 11.sp, color = MainText)
-              Text("💵 शुल्क सूचना: ${tour.entryNotice}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFFB45309))
+              Text("💵 शुल्क सूचना: ${tour.entryNotice}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = RoyalGoldDark)
               Text("📅 अवधि: ${tour.dates}", fontSize = 11.sp, color = MutedText)
             }
 
@@ -889,7 +895,7 @@ fun TournamentsView(
               // Button 1: Create Team
               Button(
                 onClick = { onCreateTeamForTournament(tour.id) },
-                colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen),
+                colors = ButtonDefaults.buttonColors(containerColor = RoyalViolet),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.weight(1f).height(42.dp)
               ) {
@@ -910,7 +916,7 @@ fun TournamentsView(
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.height(42.dp)
               ) {
-                Text("🗺️ रास्ता", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = DeepForest)
+                Text("🗺️ रास्ता", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = RoyalMidnight)
               }
 
               // Button 3: WhatsApp Share
@@ -922,10 +928,11 @@ fun TournamentsView(
                   }
                   context.startActivity(Intent.createChooser(shareIntent, "WhatsApp पर साझा करें"))
                 },
+                border = BorderStroke(1.dp, RoyalPink),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.height(42.dp)
               ) {
-                Text("📲 शेयर", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = PrimaryGreen)
+                Text("📲 शेयर", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = RoyalPink)
               }
             }
           }
@@ -1452,7 +1459,7 @@ fun MultiTeamManagementView(
         }
         Button(
           onClick = { showCreateDialog = true },
-          colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen),
+          colors = ButtonDefaults.buttonColors(containerColor = RoyalPink),
           shape = RoundedCornerShape(8.dp),
           contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
         ) {
@@ -1579,7 +1586,7 @@ fun MultiTeamManagementView(
                 "👥 स्क्वाड क्षमता: ${activeTeam.members.size} / 15 खिलाड़ी (न्यूनतम 11 आवश्यक)",
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
-                color = if (activeTeam.members.size >= 11) PrimaryGreen else Color(0xFFDC2626)
+                color = if (activeTeam.members.size >= 11) PitchGreenDark else RoyalPinkDark
               )
             }
           }
@@ -1595,7 +1602,7 @@ fun MultiTeamManagementView(
             if (!isLocked) {
               Button(
                 onClick = { showAddPlayerDialog = true },
-                colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen),
+                colors = ButtonDefaults.buttonColors(containerColor = RoyalViolet),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.weight(1f).height(38.dp)
               ) {
@@ -1612,7 +1619,7 @@ fun MultiTeamManagementView(
                     Toast.makeText(context, "आयोजक को टीम आवेदन सफलतापूर्वक भेजा गया!", Toast.LENGTH_LONG).show()
                   }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = if (activeTeam.members.size >= 11) Color(0xFF15803D) else Color(0xFF9CA3AF)),
+                colors = ButtonDefaults.buttonColors(containerColor = if (activeTeam.members.size >= 11) PitchGreenDark else Color(0xFF9CA3AF)),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.weight(1.3f).height(38.dp)
               ) {
@@ -1835,8 +1842,9 @@ fun PlayerRegistrationAndProfileView(
     ) {
       item {
         Card(
-          colors = CardDefaults.cardColors(containerColor = DeepForest),
+          colors = CardDefaults.cardColors(containerColor = RoyalMidnightCard),
           shape = RoundedCornerShape(16.dp),
+          border = BorderStroke(1.dp, RoyalViolet.copy(alpha = 0.4f)),
           modifier = Modifier.fillMaxWidth()
         ) {
           Column(modifier = Modifier.padding(16.dp)) {
@@ -1847,7 +1855,9 @@ fun PlayerRegistrationAndProfileView(
             ) {
               Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                  modifier = Modifier.size(46.dp).background(PrimaryGreen, CircleShape),
+                  modifier = Modifier
+                    .size(48.dp)
+                    .background(Brush.linearGradient(listOf(RoyalPink, RoyalViolet)), CircleShape),
                   contentAlignment = Alignment.Center
                 ) {
                   Text(currentProfile.fullName.take(1), fontWeight = FontWeight.Bold, fontSize = 20.sp, color = White)
@@ -1855,19 +1865,19 @@ fun PlayerRegistrationAndProfileView(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                   Text(currentProfile.fullName, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = White)
-                  Text("ग्राम: ${currentProfile.village} • ब्लॉक: ${currentProfile.block}", fontSize = 11.sp, color = AmberHighlight)
+                  Text("ग्राम: ${currentProfile.village} • ब्लॉक: ${currentProfile.block}", fontSize = 11.sp, color = RoyalGold)
                 }
               }
 
               Surface(
-                color = if (currentProfile.isAvailable) Color(0xFFDCFCE7) else Color(0xFFFEE2E2),
+                color = if (currentProfile.isAvailable) PitchGreenLight else Color(0xFFFEE2E2),
                 shape = RoundedCornerShape(12.dp)
               ) {
                 Text(
                   if (currentProfile.isAvailable) "उपलब्ध (15 दिन)" else "अनुपलब्ध",
                   fontSize = 10.sp,
                   fontWeight = FontWeight.Bold,
-                  color = if (currentProfile.isAvailable) Color(0xFF166534) else Color(0xFF991B1B),
+                  color = if (currentProfile.isAvailable) PitchGreenDark else Color(0xFF991B1B),
                   modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
               }
@@ -2497,13 +2507,19 @@ fun PlayersView(
             verticalAlignment = Alignment.CenterVertically
           ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+              val avatarBrush = when (p.role) {
+                "बल्लेबाज" -> Brush.linearGradient(listOf(RoyalPink, Color(0xFFF43F5E)))
+                "गेंदबाज" -> Brush.linearGradient(listOf(RoyalViolet, Color(0xFF8B5CF6)))
+                "ऑल-राउंडर" -> Brush.linearGradient(listOf(RoyalGold, Color(0xFFF97316)))
+                else -> Brush.linearGradient(listOf(RoyalBlue, Color(0xFF6366F1)))
+              }
               Box(
                 modifier = Modifier
-                  .size(36.dp)
-                  .background(PrimaryGreen, CircleShape),
+                  .size(38.dp)
+                  .background(avatarBrush, CircleShape),
                 contentAlignment = Alignment.Center
               ) {
-                Text(p.name.take(1), fontWeight = FontWeight.Bold, color = White, fontSize = 15.sp)
+                Text(p.name.take(1), fontWeight = FontWeight.Bold, color = White, fontSize = 16.sp)
               }
               Spacer(modifier = Modifier.width(10.dp))
               Column {
@@ -2513,15 +2529,25 @@ fun PlayersView(
             }
 
             Surface(
-              color = if (p.role == "ऑल-राउंडर") Color(0xFFFEF3C7) else Color(0xFFDCFCE7),
+              color = when (p.role) {
+                "ऑल-राउंडर" -> RoyalGoldLight
+                "बल्लेबाज" -> RoyalPinkLight
+                "गेंदबाज" -> RoyalVioletLight
+                else -> RoyalBlueLight
+              },
               shape = RoundedCornerShape(8.dp)
             ) {
               Text(
                 p.role,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                color = if (p.role == "ऑल-राउंडर") Color(0xFF92400E) else Color(0xFF166534),
-                modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
+                color = when (p.role) {
+                  "ऑल-राउंडर" -> RoyalGoldDark
+                  "बल्लेबाज" -> RoyalPinkDark
+                  "गेंदबाज" -> RoyalVioletDark
+                  else -> RoyalBlue
+                },
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
               )
             }
           }
@@ -2544,12 +2570,12 @@ fun PlayersView(
             Text("मोबाइल: ${p.maskedPhone}", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MutedText)
             Button(
               onClick = { onInvitePlayer(p) },
-              colors = ButtonDefaults.buttonColors(containerColor = PrimaryGreen),
+              colors = ButtonDefaults.buttonColors(containerColor = RoyalViolet),
               shape = RoundedCornerShape(8.dp),
               contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
               modifier = Modifier.height(34.dp)
             ) {
-              Text("+ टीम में आमंत्रित करें", fontSize = 11.sp, color = White)
+              Text("+ टीम में आमंत्रित करें", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = White)
             }
           }
         }
@@ -2657,7 +2683,7 @@ fun RulesView() {
         horizontalArrangement = Arrangement.SpaceEvenly
       ) {
         Surface(
-          color = if (subTab == 0) DeepForest else Color.Transparent,
+          color = if (subTab == 0) RoyalViolet else Color.Transparent,
           shape = RoundedCornerShape(8.dp),
           modifier = Modifier
             .weight(1f)
@@ -2668,12 +2694,12 @@ fun RulesView() {
               "⚖️ कानूनी अस्वीकरण",
               fontSize = 12.sp,
               fontWeight = FontWeight.Bold,
-              color = if (subTab == 0) AmberHighlight else MainText
+              color = if (subTab == 0) White else MainText
             )
           }
         }
         Surface(
-          color = if (subTab == 1) PrimaryGreen else Color.Transparent,
+          color = if (subTab == 1) RoyalPink else Color.Transparent,
           shape = RoundedCornerShape(8.dp),
           modifier = Modifier
             .weight(1f)
@@ -2697,12 +2723,13 @@ fun RulesView() {
       // -------------------------------------------------------------
       item {
         Card(
-          colors = CardDefaults.cardColors(containerColor = DeepForest),
+          colors = CardDefaults.cardColors(containerColor = RoyalMidnightCard),
           shape = RoundedCornerShape(14.dp),
+          border = BorderStroke(1.dp, RoyalViolet.copy(alpha = 0.5f)),
           modifier = Modifier.fillMaxWidth()
         ) {
           Column(modifier = Modifier.padding(14.dp)) {
-            Text("⚖️ विधिक अस्वीकरण एवं दायित्व मुक्ति", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = AmberHighlight)
+            Text("⚖️ विधिक अस्वीकरण एवं दायित्व मुक्ति", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = RoyalGold)
             Spacer(modifier = Modifier.height(4.dp))
             Text(
               "भारतीय सूचना प्रौद्योगिकी अधिनियम (IT Act), पब्लिक गैंबलिंग एक्ट 1867 एवं खेल विधि के तहत पूर्ण विधिक सुरक्षा।",

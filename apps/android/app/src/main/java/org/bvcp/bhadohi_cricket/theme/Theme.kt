@@ -11,22 +11,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-  primary = PrimaryGreen,
-  secondary = AmberHighlight,
-  tertiary = CreamBackground,
-  background = DeepForest,
-  surface = DarkCard,
+  primary = RoyalViolet,
+  secondary = RoyalPink,
+  tertiary = RoyalGold,
+  background = RoyalMidnight,
+  surface = RoyalMidnightCard,
   onPrimary = White,
-  onSecondary = DeepForest,
-  onBackground = CreamBackground,
+  onSecondary = White,
+  onBackground = CanvasBackground,
   onSurface = White
 )
 
 private val LightColorScheme = lightColorScheme(
-  primary = PrimaryGreen,
-  secondary = DeepForest,
-  tertiary = AmberHighlight,
-  background = CreamBackground,
+  primary = RoyalViolet,
+  secondary = RoyalMidnight,
+  tertiary = RoyalPink,
+  background = CanvasBackground,
   surface = CardBackground,
   onPrimary = White,
   onSecondary = White,
@@ -37,7 +37,7 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun BhadohiCricketTheme(
   darkTheme: Boolean = isSystemInDarkTheme(),
-  dynamicColor: Boolean = false, // Use our authentic branded palette
+  dynamicColor: Boolean = false, // Keep our authentic Royal Cricket brand palette
   content: @Composable () -> Unit,
 ) {
   val colorScheme =
